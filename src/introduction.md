@@ -1,4 +1,4 @@
-# Qiskit From Zero
+# Qiskit for Curious Programmers
 
 This book is for someone who wants to learn Qiskit without being buried under the entire quantum computing universe on day one.
 

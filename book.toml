@@ -1,6 +1,6 @@
 [book]
-title = "Qiskit From Zero"
-authors = ["Tommy Chiang"]
+title = "Qiskit for Curious Programmers"
+authors = ["Tommy Chiang", "OpenAI Codex"]
 language = "en"
 description = "A beginner-friendly mdBook tutorial for learning Qiskit with small, QCoder-style exercises."
 
@@ -11,5 +11,5 @@ build-dir = "book"
 default-theme = "light"
 preferred-dark-theme = "light"
 mathjax-support = true
-git-repository-url = "https://github.com/Qiskit/documentation"
+git-repository-url = "https://github.com/oToToT/qiskit-learn"
 site-url = "/qiskit-learn/"

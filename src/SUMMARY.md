@@ -1,6 +1,6 @@
 # Summary
 
-- [Qiskit From Zero](./introduction.md)
+- [Qiskit for Curious Programmers](./introduction.md)
 - [How To Use This Book](./how-to-use-this-book.md)
 - [Setup](./setup.md)
 

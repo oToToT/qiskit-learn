@@ -10,7 +10,7 @@ You need:
 - `uv`
 - `mdbook`
 
-Inside this folder, the Python metadata lives in [`pyproject.toml`](../pyproject.toml).
+Inside this folder, the Python metadata lives in `pyproject.toml` at the project root.
 
 ## Install Qiskit with `uv`
 

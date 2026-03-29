@@ -1,4 +1,4 @@
-# Qiskit From Zero
+# Qiskit for Curious Programmers
 
 A beginner-friendly Qiskit tutorial written with `mdBook`.
 
