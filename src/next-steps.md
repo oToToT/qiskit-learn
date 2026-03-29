@@ -1,50 +1,45 @@
 # Next Steps
 
-After this book, the right next move is not "read everything."
+When you finish this book, do not immediately jump to the hardest paper or the largest tutorial.
 
-Pick one lane.
+Pick a lane.
 
-## If you want stronger circuit fundamentals
+## If you want to become strong at QCoder
 
-Study more:
+Repeat this loop:
 
-- state preparation
-- controlled operations
-- basis changes
-- phase oracles
+1. classify the problem family
+2. write the intended basis-state or phase action
+3. implement the smallest correct circuit
+4. test with exact simulation first
 
-Then solve more short problems in the same style as the practice ladder.
+Then work through contest archives in order instead of randomly.
 
-## If you want real algorithm tutorials
+## If you want algorithm depth
 
-Move into:
+Study next:
 
-- Grover in more depth
 - phase estimation
-- quantum Fourier transform
+- Hamiltonian simulation
 - variational algorithms
+- fault-tolerant algorithm building blocks
 
-At that point, the official Qiskit tutorials become much easier to digest.
+## If you want QML depth
 
-## If you want hardware and execution
+Study next:
 
-Read the official guides for:
+- feature maps
+- trainable kernels
+- variational classifiers
+- hybrid PyTorch integrations
 
-- installation and environment setup
-- primitives
-- transpilation
-- backend execution
+## Final standard
 
-Those topics matter, but they are much easier once the circuit model is already familiar.
+The useful goal is not "I read a quantum book."
 
-## Final advice
+It is:
 
-A beginner mistake is trying to memorize quantum algorithms as named objects.
-
-A better approach is:
-
-1. understand tiny circuit moves
-2. combine them into patterns
-3. recognize the pattern inside the algorithm
-
-That is how the subject starts feeling programmable.
+- I can state the intended transformation
+- I can implement it in Qiskit
+- I can test it
+- I can explain why it works

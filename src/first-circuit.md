@@ -1,6 +1,6 @@
 # Your First Circuit
 
-The first Qiskit object to get comfortable with is `QuantumCircuit`.
+The first Qiskit object you need is `QuantumCircuit`.
 
 ```python
 from qiskit import QuantumCircuit
@@ -12,20 +12,16 @@ print(qc)
 
 This says:
 
-- create a circuit with one qubit
+- create a one-qubit circuit
 - apply a Hadamard gate to qubit `0`
 
-The important part is not the syntax. The important part is the meaning.
+Starting from `|0>`, the `H` gate creates the state
 
-Starting from `|0>`, the `H` gate makes an equal superposition:
-
-\[
+$$
 \frac{|0\rangle + |1\rangle}{\sqrt{2}}
-\]
+$$
 
-## Looking at the state directly
-
-Before measuring, it helps to inspect the exact quantum state.
+## Look at the state before measuring
 
 ```python
 from qiskit import QuantumCircuit
@@ -38,24 +34,29 @@ state = Statevector.from_instruction(qc)
 print(state)
 ```
 
-This is one of the best beginner tools in Qiskit. It lets you inspect amplitudes without introducing sampling noise.
+This is the most important beginner debugging move in Qiskit. Before asking what you will observe, ask what state you built.
 
-## The beginner mental model
+## Recipes and states
 
-Think of a circuit as a recipe that transforms a state step by step.
+Keep these roles separate:
 
-At this stage:
+- the circuit is the recipe
+- the statevector is the current quantum state
+- measurement turns the state into classical outcomes
 
-- `QuantumCircuit` is the recipe
-- gates are transformations
-- `Statevector.from_instruction(...)` lets you inspect the result exactly
+If you mix those ideas together, every later chapter gets harder.
 
-## DIY
+## Checkpoint Exercises
 
-Write three tiny circuits and inspect each statevector:
+1. Prepare `|1>`.
+2. Prepare the plus state.
+3. Apply `x` then `h` and inspect the resulting state.
+4. Build two different circuits that end in the same state.
 
-1. apply `x(0)`
-2. apply `z(0)`
-3. apply `x(0)` and then `h(0)`
+## QCoder Connections
 
-Do not just run them. Predict the result first.
+These are natural follow-ups once this chapter feels easy:
+
+- QPC001 A1, "Generate State |1>"
+- QPC001 A2, "Generate Plus state"
+- QPC002 B1, "Generate State e^(i theta)|0>"

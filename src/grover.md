@@ -1,21 +1,17 @@
-# A Small Grover Search
+# Grover Search
 
-Grover's algorithm is a great first "real" algorithm because it is still readable as a circuit.
+Grover is a perfect beginner algorithm because it is both important and readable.
 
-## The idea
+## The two-step loop
 
-Start with a uniform superposition over all candidates.
+For a small search space:
 
-Then repeat:
+1. mark the good state with an oracle
+2. apply the diffusion operator
 
-1. mark the good answer with an oracle
-2. apply the diffusion step to amplify it
+That combination amplifies the marked state's amplitude.
 
-For two qubits and one marked state, one Grover iteration is enough.
-
-## A minimal example
-
-This version marks `|11>`.
+## Minimal 2-qubit example
 
 ```python
 from qiskit import QuantumCircuit
@@ -37,30 +33,32 @@ qc.h([0, 1])
 qc.measure_all()
 
 sampler = StatevectorSampler()
-job = sampler.run([qc], shots=256)
-result = job.result()
+result = sampler.run([qc], shots=256).result()
 print(result[0].data.meas.get_counts())
 ```
 
-You should see `"11"` dominate.
+For this case, `"11"` should dominate.
 
-## Why this chapter matters
+## What you should understand, not memorize
 
-Grover combines most of the early book:
+Understand these pieces separately:
 
-- superposition
+- uniform superposition
 - phase marking
-- controlled gates
-- interference
+- reflection about the average
+- iteration count
 
-If this chapter makes sense, the earlier pieces are starting to connect.
+If you only memorize gate strings, every variant feels new. If you understand the pieces, most variants are small edits.
 
-## DIY
+## Checkpoint Exercises
 
-Modify the oracle so Grover searches for:
+1. Change the oracle so the marked state is `|00>`.
+2. Do the same for `|10>`.
+3. Build a 3-qubit oracle for one marked state and run one Grover iteration.
+4. Compare the statevector before and after the diffusion step.
 
-1. `|00>`
-2. `|10>`
-3. a marked state of your choice on three qubits
+## QCoder Connections
 
-For the three-qubit version, do not worry about optimal iteration count yet. Focus on writing the oracle and the diffusion pattern clearly.
+- QPC003 B6, "Grover's Algorithm I"
+- QPC003 B8, "Grover's Algorithm II"
+- QPC003 Ex2, "Find Hidden Number"

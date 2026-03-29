@@ -1,59 +1,67 @@
 # The Single-Qubit Toolbox
 
-Most beginner QCoder-style tasks start by asking you to create a small target state. That means you need a compact gate vocabulary.
+Most early QCoder problems are really asking one question:
 
-## The gates to learn first
+"Can you control one qubit well?"
 
-- `x`: flips `|0>` and `|1>`
-- `z`: changes the sign of `|1>`
-- `h`: mixes basis states
-- `rx`, `ry`, `rz`: smooth rotations
+## The first gates to master
 
-If you understand those well, a lot of beginner circuits stop looking magical.
+- `x`: swaps `|0>` and `|1>`
+- `z`: flips the sign of `|1>`
+- `h`: changes between the computational basis and the plus/minus basis
+- `rx`, `ry`, `rz`: continuous rotations
 
-## A useful pattern
+## `ry` as a state-preparation tool
 
-`ry(theta)` is often the easiest way to prepare a one-qubit state with real amplitudes.
+For real amplitudes, `ry(theta)` is the cleanest gate to learn first:
+
+$$
+R_y(\theta)|0\rangle
+=
+\cos(\theta/2)|0\rangle + \sin(\theta/2)|1\rangle
+$$
 
 ```python
+from math import pi
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
-from math import pi
 
 qc = QuantumCircuit(1)
 qc.ry(pi / 3, 0)
-
-state = Statevector.from_instruction(qc)
-print(state)
+print(Statevector.from_instruction(qc))
 ```
 
-That gives you a state of the form:
+## Why `z` feels useless until it does not
 
-\[
-\cos(\theta/2)|0\rangle + \sin(\theta/2)|1\rangle
-\]
+If your qubit is definitely `|0>`, then `z` appears to do nothing.
 
-## Why `z` feels weird at first
+But after a Hadamard, `z` changes relative phase:
 
-`z` does nothing visible to `|0>`.
+$$
+Z\frac{|0\rangle + |1\rangle}{\sqrt{2}}
+=
+\frac{|0\rangle - |1\rangle}{\sqrt{2}}
+$$
 
-```python
-qc = QuantumCircuit(1)
-qc.z(0)
-```
+That is enough to change later interference.
 
-Measured directly, this still gives `0` every time.
+## Learn one tiny identity well
 
-But if the qubit is already in superposition, `z` changes relative phase, and relative phase changes future interference.
+$$
+H Z H = X
+$$
 
-That is why `h -> z -> h` is not useless. It acts like `x`.
+This is not just algebra. It is the simplest example of turning phase information into bit information by changing basis.
 
-## DIY
+## Checkpoint Exercises
 
-Try to build these states on one qubit:
+1. Prepare the minus state.
+2. Prepare a state with `P(1)=3/4`.
+3. Verify `H Z H = X` on `|0>` and `|1>`.
+4. Build three different circuits for `-|1>` and confirm they differ only by global phase.
 
-1. \((|0\rangle - |1\rangle)/\sqrt{2}\)
-2. \(-|1\rangle\)
-3. a state where `P(1) = 3/4`
+## QCoder Connections
 
-For the third one, prefer a rotation gate instead of guessing with many gates.
+- QPC001 A3, "Generate Minus state"
+- QPC002 B1, "Generate State e^(i theta)|0>"
+- QPC003 B3, "Generate State tensor_i (cos T_i |0> + sin T_i |1>)"

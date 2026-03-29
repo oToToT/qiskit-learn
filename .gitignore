@@ -1,5 +1,6 @@
 .venv/
 book/
 .playwright/
+.playwright-cli/
 __pycache__/
 *.pyc

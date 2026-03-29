@@ -1,38 +1,34 @@
 # Setup
 
-This project uses `mdBook` for the tutorial and `uv` for Python work.
+This project uses `mdBook` for the text and `uv` for Python environments and dependency management.
 
-## Tooling
+## Tools
 
-You need:
+Install:
 
-- `python`
+- Python
 - `uv`
 - `mdbook`
 
-Inside this folder, the Python metadata lives in `pyproject.toml` at the project root.
+The Python dependency metadata lives in `pyproject.toml` at the project root.
 
-## Install Qiskit with `uv`
+## Install the core Qiskit packages
 
 From the project root:
-
-```bash
-uv add qiskit
-```
-
-If you want notebooks later:
-
-```bash
-uv add jupyter
-```
-
-Then sync the environment:
 
 ```bash
 uv sync
 ```
 
-Run Python commands through `uv` so you use the project environment:
+If you want to add packages later:
+
+```bash
+uv add qiskit
+uv add qiskit-machine-learning
+uv add jupyter
+```
+
+Run Python through `uv`:
 
 ```bash
 uv run python
@@ -40,34 +36,25 @@ uv run python
 
 ## Smoke test
 
-Once `qiskit` is installed, this should work:
-
 ```python
 from qiskit import QuantumCircuit
+from qiskit.quantum_info import Statevector
 
 qc = QuantumCircuit(1)
-qc.x(0)
+qc.h(0)
 print(qc)
+print(Statevector.from_instruction(qc))
 ```
 
-## How we will simulate circuits
+If that works, your local environment is fine for the early chapters.
 
-For most early chapters, we do not need a heavy simulator backend. We can learn a lot with:
+## Why this book uses exact simulation first
 
-- `Statevector` for exact amplitudes
-- `StatevectorSampler` for repeated measurement samples
+Beginners often jump to measurement too early.
 
-That keeps the focus on circuits instead of infrastructure.
+For the first half of the book, you will mostly rely on:
 
-## One habit worth keeping
+- `Statevector` to inspect amplitudes exactly
+- `StatevectorSampler` to sample measurement results without backend setup friction
 
-Create a new file for each experiment. Do not keep one giant scratch file that mixes five unrelated ideas.
-
-A simple structure works well:
-
-```text
-examples/
-  01-first-circuit.py
-  02-measurement.py
-  03-bell-state.py
-```
+That makes debugging much easier.

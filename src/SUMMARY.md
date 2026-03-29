@@ -4,22 +4,31 @@
 - [How To Use This Book](./how-to-use-this-book.md)
 - [Setup](./setup.md)
 
-# Part I: Learn The Circuit Model
+# Part I: Foundations
 
 - [Your First Circuit](./first-circuit.md)
-- [Measurement And Probabilities](./measurement.md)
+- [Measurement And Sampling](./measurement.md)
+- [Basis States, Bitstrings, And Qubit Order](./qubit-ordering.md)
 - [The Single-Qubit Toolbox](./single-qubit-toolbox.md)
-- [Two Qubits, Correlation, And Entanglement](./two-qubits.md)
+- [Controlled Gates, Correlation, And Entanglement](./two-qubits.md)
 
-# Part II: Build Useful Patterns
+# Part II: Core Circuit Patterns
 
 - [State Preparation Patterns](./state-preparation.md)
-- [Oracles And Phase Kickback](./oracles-and-phase-kickback.md)
-- [A Small Grover Search](./grover.md)
-- [Fourier Thinking And Phase Estimation Intuition](./fourier-and-phase.md)
+- [Reversible Logic And Oracles](./reversible-logic.md)
+- [Phase Kickback And Basis Changes](./phase-kickback.md)
+- [Reflections And Amplitude Amplification](./reflections.md)
+- [Grover Search](./grover.md)
 
-# Part III: Practice
+# Part III: Fourier, Arithmetic, And Workflow
 
-- [QCoder-Style Warmups](./qcoder-warmups.md)
-- [A Practice Ladder](./qcoder-ladder.md)
+- [Quantum Fourier Transform](./qft.md)
+- [Arithmetic And Modular Thinking](./arithmetic.md)
+- [A Productive Qiskit Workflow](./qiskit-workflow.md)
+- [Quantum Machine Learning With Qiskit](./qml.md)
+
+# Part IV: QCoder Practice
+
+- [QCoder Practice Tracks](./qcoder-practice.md)
+- [Guided Exercise Sets](./qcoder-guided-sets.md)
 - [Next Steps](./next-steps.md)

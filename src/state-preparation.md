@@ -1,24 +1,22 @@
 # State Preparation Patterns
 
-QCoder problems often look like this:
+QCoder loves state-preparation tasks because they expose whether you understand gates as transformations rather than names.
 
-"Create a circuit that prepares the target state."
+## Pattern 1: basis states
 
-That is not a separate topic from learning gates. It is where the gates become useful.
-
-## Pattern 1: Basis state preparation
-
-To prepare `|101>`, just flip the right qubits.
+To prepare `|101>`, flip the right qubits:
 
 ```python
+from qiskit import QuantumCircuit
+
 qc = QuantumCircuit(3)
 qc.x(0)
 qc.x(2)
 ```
 
-## Pattern 2: Uniform superposition
+## Pattern 2: equal superposition
 
-To create equal weight over all `n`-qubit basis states:
+To create an equal superposition over all `n`-qubit basis states:
 
 ```python
 qc = QuantumCircuit(n)
@@ -26,39 +24,44 @@ for i in range(n):
     qc.h(i)
 ```
 
-This is the starting point for many search-style algorithms.
+## Pattern 3: branch on one qubit, route with controls
 
-## Pattern 3: One branch first, then control the rest
-
-Many two-qubit and three-qubit target states can be built by:
+Many hand-built two- and three-qubit states are easiest to construct by:
 
 1. setting amplitudes on one qubit
-2. using controlled gates to route amplitude into the right basis states
+2. using controlled gates to route amplitude to the correct basis states
 
-That is more reliable than guessing.
+## Pattern 4: fix the signs after the probabilities
 
-## Pattern 4: Prepare, then fix phases
+Two states can share the same measurement distribution and still differ meaningfully:
 
-Sometimes the probabilities already look right, but the signs are wrong.
-
-That is when `z`, `cz`, or `rz` enter the picture.
-
-For example, these states have the same measurement distribution:
-
-\[
-\frac{|00\rangle + |11\rangle}{\sqrt{2}}, \quad
+$$
+\frac{|00\rangle + |11\rangle}{\sqrt{2}}
+\quad\text{and}\quad
 \frac{|00\rangle - |11\rangle}{\sqrt{2}}
-\]
+$$
 
-But they are different states, and future interference can distinguish them.
+That is when `z`, `cz`, and basis changes matter.
 
-## DIY
+## Pattern 5: build symmetry deliberately
 
-Try to prepare:
+States like
 
-1. \((|00\rangle + |11\rangle)/\sqrt{2}\)
-2. \((|00\rangle - |11\rangle)/\sqrt{2}\)
-3. a three-qubit uniform superposition
-4. a state with support only on `|000>` and `|111>`
+$$
+\frac{|100\rangle + |010\rangle + |001\rangle}{\sqrt{3}}
+$$
 
-Write down your plan before writing the code.
+are good training because they force you to think in amplitudes, not just bit flips.
+
+## Checkpoint Exercises
+
+1. Prepare the Bell state.
+2. Prepare the sign-flipped Bell state.
+3. Prepare the 3-qubit one-hot superposition above.
+4. Prepare a uniform superposition on four qubits.
+
+## QCoder Connections
+
+- QPC001 A5, "Generate State (sqrt(3)/2)|100> + (1/2)|011>"
+- QPC003 A3, "Generate State (|100> + |010> + |001>)/sqrt(3)"
+- QPC003 A4 through A6, the one-hot superposition sequence

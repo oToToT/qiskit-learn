@@ -1,13 +1,13 @@
-# Measurement And Probabilities
+# Measurement And Sampling
 
-Quantum states are not classical values. Measurement turns amplitudes into outcomes.
+Quantum states are not classical values. Measurement turns amplitudes into sampled outcomes.
 
-## Exact state vs sampled outcomes
+## Exact amplitudes versus observed counts
 
-These are different questions:
+These questions are different:
 
-- "What are the amplitudes right now?"
-- "What bitstrings do I see after measuring many times?"
+- what state is the circuit in right now?
+- what bitstrings appear if I measure repeatedly?
 
 Qiskit gives you tools for both.
 
@@ -20,26 +20,26 @@ qc.h(0)
 qc.measure_all()
 
 sampler = StatevectorSampler()
-job = sampler.run([qc], shots=1000)
-result = job.result()
+result = sampler.run([qc], shots=1000).result()
 counts = result[0].data.meas.get_counts()
 print(counts)
 ```
 
-For a fair superposition, counts should be roughly split between `"0"` and `"1"`.
+For the plus state, the counts should be close to half `"0"` and half `"1"`.
 
-## What measurement destroys
+## Why beginners should not measure too early
 
-If you measure a superposition, you do not get the amplitudes back. You get one sampled outcome.
+If you measure too soon, you destroy the information you were trying to understand.
 
-That is why we use:
+A better workflow is:
 
-- `Statevector` when learning what a circuit means
-- sampling when learning what a user would observe
+1. inspect the exact state
+2. predict the measurement distribution
+3. sample counts to confirm the prediction
 
-## A useful experiment
+## A first phase surprise
 
-Compare these two circuits:
+These circuits produce the same one-shot distribution:
 
 ```python
 qc1 = QuantumCircuit(1)
@@ -50,16 +50,27 @@ qc2.h(0)
 qc2.z(0)
 ```
 
-Their measurement counts are the same.
+Their counts look the same if you measure immediately.
 
-Their states are not the same.
+Their states are different:
 
-That is your first reminder that phase matters.
+$$
+\frac{|0\rangle + |1\rangle}{\sqrt{2}}
+\quad\text{versus}\quad
+\frac{|0\rangle - |1\rangle}{\sqrt{2}}
+$$
 
-## DIY
+That difference becomes visible after more gates. This is your first encounter with interference.
 
-Create a one-qubit circuit for each target distribution:
+## Checkpoint Exercises
 
-1. always measure `1`
-2. measure `0` and `1` with equal probability
-3. get the same counts as case 2, but with a different underlying statevector
+1. Prepare a circuit that always measures `1`.
+2. Prepare a circuit with a 50-50 split between `0` and `1`.
+3. Build two different circuits with the same counts but different states.
+4. Measure a Bell state and list which two outcomes appear.
+
+## QCoder Connections
+
+- QPC001 A3, "Generate Minus state"
+- QPC003 B2, "Convert Bit-Flip into Phase-Flip I"
+- QPC005 B1, "Action in the Fourier Basis"

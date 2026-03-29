@@ -1,49 +1,43 @@
 # Qiskit for Curious Programmers
 
-This book is for someone who wants to learn Qiskit without being buried under the entire quantum computing universe on day one.
+This book teaches Qiskit the way many programmers actually learn difficult technical subjects: one mental model at a time, with short circuits, repeated patterns, and lots of deliberate practice.
 
-The official Qiskit docs are good reference material. They are not always a good first walk-through. This book takes a different stance:
+The official Qiskit documentation is excellent reference material. It is not optimized for the first pass through the subject. QCoder, on the other hand, is unusually good at forcing beginners to turn vague understanding into circuits that actually work. This book tries to combine the strengths of both:
 
-- teach one mental model at a time
-- keep code short
-- use local simulation first
-- turn each chapter into a few small exercises
-- borrow the "tiny problem ladder" feeling from QCoder
+- the precision of Qiskit's APIs
+- the progression and pressure of QCoder problems
+- the narrative style of a beginner-friendly programming book
 
-You do not need a physics background to start. You do need patience with probability, linear algebra notation, and the fact that quantum programs often feel strange before they feel natural.
+The target reader is comfortable with Python and new to quantum programming. A physics background helps, but it is not required.
 
-## What you will learn
+## What this book covers
 
-By the end of this book, you should be comfortable with:
+By the end, you should be able to:
 
-- creating circuits with `QuantumCircuit`
-- reading statevectors and measurement counts
-- using the basic one-qubit and two-qubit gates
-- writing small state-preparation circuits
-- understanding phase kickback at a practical level
-- building a small Grover search example
-- reading QCoder-style problems and turning them into circuits
+- read and write nontrivial circuits in Qiskit
+- reason about amplitudes, phases, and measurement outcomes
+- debug circuits with `Statevector` and sampling primitives
+- build state-preparation routines, oracles, reflections, QFT blocks, and simple arithmetic circuits
+- understand the circuit patterns behind Grover, phase-based tricks, and several QCoder contest families
+- write starter quantum machine learning code in Qiskit
 
-## What this book does not try to do
+## What this book does not promise
 
-This is not:
+No single book makes someone instantly strong at every quantum algorithm. What this book can do is bring you to a point where:
 
-- a full quantum computing textbook
-- a complete reference for every Qiskit module
-- a hardware guide
-- a mathematically rigorous treatment of quantum information
+- official Qiskit tutorials stop feeling hostile
+- QCoder problems look structured instead of mysterious
+- you can design and test your own circuits instead of only copying them
 
-Those are all useful later. Right now the goal is traction.
+## How to read it
 
-## Suggested pace
+Do not treat it like a novel. Treat it like a programming manual.
 
-Work chapter by chapter. Do not speed-run the whole book.
+For every chapter:
 
-If a chapter has code:
+1. type the key examples yourself
+2. inspect the statevector before measuring
+3. make one prediction before every run
+4. solve the chapter exercises without looking back immediately
 
-1. type it yourself
-2. run it
-3. modify one thing
-4. predict what changes before you re-run it
-
-That last step matters more than passive reading.
+That rhythm matters more than speed.

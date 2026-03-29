@@ -1,38 +1,40 @@
 # How To Use This Book
 
-Each chapter is built around three layers.
+Each chapter has four layers.
 
-## 1. Core idea
+## Core idea
 
-A small concept such as:
+A compact concept such as:
 
-- what an `H` gate actually changes
-- why `CX` creates correlation
-- why a phase can matter even when measurement looks unchanged
+- why `H` is a basis change
+- what `CX` really controls
+- why a phase can matter even when counts look unchanged
 
-## 2. Qiskit move
+## Qiskit move
 
-A concrete programming action such as:
+The concrete API operation that embodies the idea:
 
-- create a circuit
-- inspect a statevector
-- sample measurements
-- compose an oracle
+- `QuantumCircuit`
+- `Statevector.from_instruction`
+- `StatevectorSampler`
+- `compose`, `control`, and reusable circuit blocks
 
-## 3. DIY problem
+## Worked pattern
 
-A short exercise inspired by QCoder-style tasks:
+A short circuit pattern you should learn to recognize:
 
-- generate a target state
-- distinguish two circuit behaviors
-- build a small reusable subroutine
+- prepare a basis state
+- mark a state with a phase flip
+- convert a phase condition into a bit condition
+- reflect about a target state
 
-Treat these as programming drills, not exam questions.
+## Exercises
 
-## A practical rule
+These are not decorative. They are the point of the book.
 
-If you can read a circuit but cannot predict its output, slow down.
+Most exercise sections are grouped by:
 
-If you can predict the output but cannot write the circuit yourself, do one more exercise.
+- checkpoint exercises for the chapter itself
+- QCoder connections, with problem names and contest references
 
-If you can write the circuit but cannot explain why it works, add comments until you can.
+When you can solve the exercises with confidence, the chapter has become yours.

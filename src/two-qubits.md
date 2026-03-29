@@ -1,10 +1,20 @@
-# Two Qubits, Correlation, And Entanglement
+# Controlled Gates, Correlation, And Entanglement
 
-Two qubits are where circuits start becoming interesting.
+The `cx` gate is where many circuits stop feeling like independent one-qubit manipulations.
+
+## Read `cx` correctly
+
+```python
+qc.cx(control, target)
+```
+
+means:
+
+"flip the target if the control is `1`."
+
+That sentence is enough to understand most beginner two-qubit circuits.
 
 ## The Bell state
-
-This is the standard first entanglement example:
 
 ```python
 from qiskit import QuantumCircuit
@@ -13,67 +23,46 @@ from qiskit.quantum_info import Statevector
 qc = QuantumCircuit(2)
 qc.h(0)
 qc.cx(0, 1)
-
-state = Statevector.from_instruction(qc)
-print(state)
-print(qc)
+print(Statevector.from_instruction(qc))
 ```
 
-The resulting state is:
+This prepares
 
-\[
+$$
 \frac{|00\rangle + |11\rangle}{\sqrt{2}}
-\]
+$$
 
-## What makes it special
+If you sample it, you only see `00` and `11`.
 
-If you measure both qubits many times, you should only see:
+## Correlation versus entanglement
 
-- `00`
-- `11`
+At a beginner level, the practical rule is:
 
-You should not see:
+- a correlated measurement pattern is easy to observe
+- entanglement is the quantum structure underneath some of those patterns
 
-- `01`
-- `10`
+You do not need full formal definitions yet. You do need to become fluent with Bell-state construction and inspection.
 
-The qubits are correlated in a way that cannot be described as each qubit having its own independent classical value.
+## Order matters
 
-## The `cx` gate
-
-Read `qc.cx(a, b)` as:
-
-"flip qubit `b` if qubit `a` is `1`."
-
-That simple rule is enough to build:
-
-- Bell states
-- controlled state preparation
-- many small oracles
-- Grover diffusion operators later
-
-## A good beginner check
-
-Compare these circuits:
+These are not the same:
 
 ```python
-qc1 = QuantumCircuit(2)
-qc1.h(0)
-qc1.cx(0, 1)
-
-qc2 = QuantumCircuit(2)
-qc2.cx(0, 1)
-qc2.h(0)
+qc1.h(0); qc1.cx(0, 1)
+qc2.cx(0, 1); qc2.h(0)
 ```
 
-Same gates. Different order. Very different result.
+Quantum circuits are ordered transformations, not unordered gate bags.
 
-Quantum programming is sensitive to order.
+## Checkpoint Exercises
 
-## DIY
+1. Prepare `( |01> + |10> ) / sqrt(2)`.
+2. Prepare `|10>` using exactly one `x` gate.
+3. Build a circuit that creates a Bell state and then maps it to `( |00> - |11> ) / sqrt(2)`.
+4. Compare `cx(0, 1)` and `cx(1, 0)` on the same input state.
 
-Build and inspect:
+## QCoder Connections
 
-1. \((|01\rangle + |10\rangle)/\sqrt{2}\)
-2. a circuit that always ends at `|10>`
-3. a circuit whose measurement results are perfectly correlated but biased toward one outcome after extra rotations
+- QPC001 A4, "Generate State (|10> + |11>)/sqrt(2)"
+- QPC002 B3, "SWAP Qubits"
+- QPC003 A2, "Generate State (|10> + |01>)/sqrt(2)"
