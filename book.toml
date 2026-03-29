@@ -1,0 +1,15 @@
+[book]
+title = "Qiskit From Zero"
+authors = ["Tommy Chiang"]
+language = "en"
+description = "A beginner-friendly mdBook tutorial for learning Qiskit with small, QCoder-style exercises."
+
+[build]
+build-dir = "book"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "light"
+mathjax-support = true
+git-repository-url = "https://github.com/Qiskit/documentation"
+site-url = "/"

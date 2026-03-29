@@ -1,0 +1,11 @@
+[project]
+name = "qiskit-learn"
+version = "0.1.0"
+description = "Beginner-friendly Qiskit tutorial built with mdBook"
+requires-python = ">=3.13"
+dependencies = [
+    "qiskit>=2.3.1",
+]
+
+[tool.uv]
+package = false

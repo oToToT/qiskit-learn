@@ -1,0 +1,5 @@
+.venv/
+book/
+.playwright/
+__pycache__/
+*.pyc
