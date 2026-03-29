@@ -20,15 +20,10 @@
 - [Reflections And Amplitude Amplification](./reflections.md)
 - [Grover Search](./grover.md)
 
-# Part III: Fourier, Arithmetic, And Workflow
+# Part III: Fourier, Arithmetic, Workflow, And QML
 
 - [Quantum Fourier Transform](./qft.md)
 - [Arithmetic And Modular Thinking](./arithmetic.md)
 - [A Productive Qiskit Workflow](./qiskit-workflow.md)
 - [Quantum Machine Learning With Qiskit](./qml.md)
-
-# Part IV: QCoder Practice
-
-- [QCoder Practice Tracks](./qcoder-practice.md)
-- [Guided Exercise Sets](./qcoder-guided-sets.md)
 - [Next Steps](./next-steps.md)
