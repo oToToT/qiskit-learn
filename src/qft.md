@@ -1,130 +1,153 @@
 # Quantum Fourier Transform
 
-QFT is the next big milestone after Grover because it teaches you to think in phase structure rather than only marked states.
+The Quantum Fourier Transform (QFT) is a quantum version of the discrete Fourier transform. It's a key subroutine in many quantum algorithms, including Shor's factoring algorithm.
 
-## What QFT does
+## What QFT Does
 
-At a high level, the Quantum Fourier Transform changes basis so that periodic or phase-encoded structure becomes easier to read.
+QFT transforms between two representations of quantum data:
 
-That sentence can sound abstract, so keep one simpler description nearby:
+1. **Computational basis**: states labeled by binary strings
+1. **Fourier basis**: states labeled by phases
 
-QFT is a structured basis change built from Hadamards and controlled phase rotations.
+Mathematically:
+\\[|x\\rangle \\xrightarrow{\\text{QFT}} \\frac{1}{\\sqrt{N}}\\sum\_{k=0}^{N-1} e^{2\\pi i xk/N}|k\\rangle\\]
 
-## The 2-qubit QFT by hand
-
-A small QFT circuit is the best place to start.
+## The 2-Qubit QFT
 
 ```python
 from qiskit import QuantumCircuit
+from qiskit.quantum_info import Statevector
+from math import pi
 
 def qft_2():
     qc = QuantumCircuit(2)
     qc.h(1)
-    qc.cp(3.141592653589793 / 2, 0, 1)
+    qc.cp(pi/2, 0, 1)  # Controlled phase
     qc.h(0)
     qc.swap(0, 1)
     return qc
 
-print(qft_2())
+qc = qft_2()
+print(qc)
+print(Statevector.from_instruction(qc))
 ```
 
-This already shows the structure:
+## The Pattern
 
-- apply a Hadamard
-- add controlled phase rotations with decreasing angles
-- repeat on the next qubit
-- optionally reverse qubit order with swaps
+The n-qubit QFT follows a pattern:
 
-## Why controlled phases appear
-
-In the Fourier basis, basis states are distinguished by phase patterns. Controlled phase rotations are the local mechanism that builds those patterns one qubit at a time.
-
-You do not need the full matrix formula to understand the circuit behavior:
-
-- Hadamards create local superposition
-- controlled phases correlate branches by angle
-- swaps restore the output qubit order you usually want
-
-## QFT and qubit order are tightly linked
-
-Many QFT confusions are not about Fourier analysis. They are about:
-
-- little-endian ordering
-- where the swaps belong
-- whether the inverse QFT is being used
-
-That is one reason the earlier qubit-order chapter matters so much.
-
-## QFT followed by inverse QFT
-
-The most important first verification is that QFT is invertible and that your implementation is correct.
+1. Apply Hadamard to most significant qubit
+1. Apply controlled phases with decreasing angles
+1. Repeat on remaining qubits
+1. Swap at the end (to fix qubit ordering)
 
 ```python
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
+def qft(n):
+    qc = QuantumCircuit(n)
+    for i in range(n-1, -1, -1):
+        qc.h(i)
+        for j in range(i):
+            qc.cp(pi/(2**(i-j)), j, i)
+    qc.swap(*range(n//2))  # Swap pairs
+    return qc
+```
 
+## Why Controlled Phases?
+
+The Fourier basis states are distinguished by phase patterns:
+
+```
+QFT|00⟩ = (|00⟩ + |01⟩ + |10⟩ + |11⟩)/2        (all same phase)
+QFT|01⟩ = (|00⟩ - |01⟩ + |10⟩ - |11⟩)/2       (alternating)
+QFT|10⟩ = (|00⟩ + i|01⟩ - |10⟩ - i|11⟩)/2     (phase pattern)
+QFT|11⟩ = (|00⟩ - i|01⟩ - |10⟩ + i|11⟩)/2     (different pattern)
+```
+
+The controlled phases build these phase patterns.
+
+## QFT and Qubit Order
+
+QFT is usually defined with big-endian ordering (qubit n-1 is most significant).
+Qiskit uses little-endian.
+The final SWAP fixes this.
+
+```python
+# Without SWAP: output appears reversed
 qc = QuantumCircuit(2)
-qc.x(0)
+qc.h(0)
+qc.h(1)
+qc.cp(pi/2, 0, 1)
+
+print("Without swap:", Statevector.from_instruction(qc))
+```
+
+## Inverse QFT
+
+QFT is unitary, so it has an inverse (conjugate transpose):
+
+```python
+qc = QuantumCircuit(2)
+qc.x(0)  # Start with |01⟩
+
+# Apply QFT then inverse QFT
 qc.compose(qft_2(), inplace=True)
 qc.compose(qft_2().inverse(), inplace=True)
 
-print(Statevector.from_instruction(qc))
+print("After QFT† QFT:", Statevector.from_instruction(qc))
 ```
 
-If the implementation is correct, you recover the original input state.
+If implemented correctly, you get back to the original state.
 
-## Looking at phases directly
+## Fourier Basis
 
-To get a more useful feel for QFT, inspect the transformed state of a basis vector:
+The Fourier basis states are eigenstates of phase operations:
 
-```python
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
+\\[|j\\rangle\_{\\text{Fourier}} \\xrightarrow{\\text{Phase}} e^{2\\pi i j/N}|j\\rangle\_{\\text{Fourier}}\\]
 
-qc = QuantumCircuit(2)
-qc.x(0)
-qc.compose(qft_2(), inplace=True)
-print(Statevector.from_instruction(qc))
-```
-
-You will see that the output is not a single basis state. It is a superposition whose amplitudes differ by phase.
-
-That is the key shift in thinking:
-
-- Grover highlights marked branches
-- QFT highlights structured phase relationships
-
-## When the final swaps matter
-
-Some derivations and library routines omit the trailing swaps and treat the reversed order as acceptable.
-
-That is mathematically fine if you track the ordering consistently. It is a common beginner mistake if you do not.
-
-So the practical rule is:
-
-- keep the swaps while learning
-- remove them only when you are very clear about the resulting bit order
-
-## Where QFT shows up later
-
-QFT is a building block for:
-
-- phase estimation
-- period finding
-- arithmetic in the Fourier basis
-- shift and modular-action circuits
-
-Even if you do not implement all of those immediately, QFT is worth understanding as a reusable basis-change pattern.
+This is why QFT is useful for phase estimation.
 
 ## Checkpoint Exercises
 
-1. Write a 2-qubit QFT circuit by hand.
-2. Remove the final swaps and describe exactly what changes.
-3. Apply QFT and inverse QFT in sequence and verify you recover the input state.
-4. Inspect the QFT of each 2-qubit basis state and describe the phase pattern you see.
+### Exercise 1
+
+Implement the 3-qubit QFT by hand.
+
+### Exercise 2
+
+Apply QFT to each basis state and describe the phase patterns.
+
+### Exercise 3
+
+Verify that QFT followed by inverse QFT returns to the original state.
+
+### Exercise 4
+
+Remove the SWAP gates and explain what changes.
+
+### Exercise 5
+
+Create a circuit that adds phase \\(e^{2\\pi i/4}\\) to the \\(|1\\rangle\\) state.
+
+## Summary
+
+Key concepts:
+
+- QFT transforms between computational and Fourier bases
+- Built from Hadamards and controlled phases
+- SWAP gates fix qubit ordering
+- Inverse QFT is QFT with negated phases
+- Foundation for phase estimation and Shor's algorithm
+
+QFT is the quantum version of a fundamental mathematical operation. Understanding it opens the door to many quantum algorithms.
+
+______________________________________________________________________
 
 ## Try These On QCoder
 
-- [QPC002 B4, Quantum Fourier Transform](https://www.qcoder.jp/en/contests/QPC002/problems/B4)
-- [QPC005 B1, Action in the Fourier Basis](https://www.qcoder.jp/en/contests/QPC005/problems/B1)
-- [QPC005 B2, Cyclic Shift in the Fourier Basis](https://www.qcoder.jp/en/contests/QPC005/problems/B2)
+- [QPC002 B4: Quantum Fourier Transform](https://www.qcoder.jp/en/contests/QPC002/problems/B4)
+- [QPC005 B1: Action in the Fourier Basis](https://www.qcoder.jp/en/contests/QPC005/problems/B1)
+- [QPC005 B2: Cyclic Shift in the Fourier Basis](https://www.qcoder.jp/en/contests/QPC005/problems/B2)
+
+______________________________________________________________________
+
+*Next: [Arithmetic Circuits and Modular Thinking](./arithmetic.md)*

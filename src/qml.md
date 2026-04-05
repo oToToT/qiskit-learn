@@ -1,131 +1,139 @@
-# Quantum Machine Learning With Qiskit
+# Quantum Machine Learning with Qiskit
 
-If you want to write quantum machine learning code after this book, you need a realistic starting point, not marketing.
+Quantum Machine Learning (QML) combines quantum computing with classical machine learning. This chapter gives you a realistic starting point.
 
-## What QML usually looks like in practice
+## What QML Looks Like in Practice
 
-In Qiskit, beginner-friendly QML work usually falls into two families:
+Beginner-friendly QML typically falls into two categories:
 
-- quantum kernels
-- variational quantum models
+| Type | Description | Qiskit Package |
+|------|-------------|----------------|
+| **Quantum Kernels** | Measure similarity between quantum states | `qiskit-machine-learning` |
+| **Variational Models** | Parameterized circuits optimized for tasks | `qiskit-machine-learning` |
 
-The relevant package is `qiskit-machine-learning`.
-
-## Install the extra package
-
-If you want to run the package-specific examples in this chapter:
+## Installing the Package
 
 ```bash
 uv add qiskit-machine-learning
 ```
 
-The circuit design ideas, however, are mostly plain Qiskit ideas you already know.
+## Quantum Kernels
 
-## Quantum kernels
+The workflow:
 
-The workflow is usually:
-
-1. encode classical data with a feature map
-2. compare encoded states through a kernel
-3. feed the kernel to a classical learner such as an SVM
-
-This is conceptually close to the circuit skills you already built:
-
-- data encoding is state preparation
-- similarity is controlled by phase and basis structure
-
-## A tiny feature-map example
+1. Encode classical data into quantum states (feature map)
+1. Prepare states and measure overlap (kernel)
+1. Use kernel in classical ML algorithm
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.circuit import ParameterVector
 
+# Simple feature map
+def feature_map(x, n=2):
+    qc = QuantumCircuit(n)
+    for i in range(n):
+        qc.h(i)
+        qc.rz(x[i], i)
+    qc.cx(0, 1)
+    return qc
+
+# Use it
 x = ParameterVector("x", 2)
-
-feature_map = QuantumCircuit(2)
-feature_map.h([0, 1])
-feature_map.rz(x[0], 0)
-feature_map.rz(x[1], 1)
-feature_map.cx(0, 1)
-feature_map.rz((x[0] + x[1]), 1)
-feature_map.cx(0, 1)
-
-print(feature_map)
+fm = feature_map(x)
+print(fm)
 ```
 
-Do not worry yet about whether this is the best feature map. The point is to see what QML circuits look like: parameterized state-preparation blocks.
+## Variational Circuits
 
-## Variational models
+A variational circuit has:
 
-A variational model usually has:
-
-- a feature map
-- a parameterized ansatz
-- an optimizer
-- a loss function
-
-The circuit layer is something like this:
+1. Feature map (encodes data)
+1. Ansatz (trainable parameters)
+1. Measurement (outputs predictions)
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.circuit import ParameterVector
 
-theta = ParameterVector("theta", 4)
+# Trainable ansatz
+def ansatz(params, n=2):
+    qc = QuantumCircuit(n)
+    for i in range(n):
+        qc.ry(params[i], i)
+    qc.cx(0, 1)
+    for i in range(n):
+        qc.rz(params[n+i], i)
+    return qc
 
-ansatz = QuantumCircuit(2)
-ansatz.ry(theta[0], 0)
-ansatz.ry(theta[1], 1)
-ansatz.cx(0, 1)
-ansatz.rz(theta[2], 0)
-ansatz.ry(theta[3], 1)
-
-print(ansatz)
+# Use it
+params = ParameterVector("θ", 4)
+ans = ansatz(params)
+print(ans)
 ```
 
-This is where parameterized circuits and clean Qiskit workflow really matter.
+## Connecting to Scikit-Learn
 
-## How the earlier chapters support QML
+```python
+from qiskit_machine_learning.algorithms import QiskitClassifier
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
 
-Kernel methods lean on:
+# Simple example structure (full implementation requires more setup)
+X, y = make_classification(n_samples=100, n_features=2, n_classes=2)
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+```
 
-- state preparation
-- basis changes
-- phase reasoning
+## How Earlier Chapters Support QML
 
-Variational methods lean on:
+| QML Concept | Relevant Chapter |
+|-------------|------------------|
+| Feature maps | State preparation, basis changes |
+| Kernel computation | Phase, interference |
+| Ansatz design | Single/two-qubit gates |
+| Gradient computation | Measurement, sampling |
 
-- parameterized gates
-- entangling layers
-- measurement design
-- systematic debugging
+QML isn't a separate island—it's built from circuit primitives.
 
-So QML is not a separate island. It is built from the same circuit vocabulary you have already been learning.
+## A Realistic Beginner Goal
 
-## A realistic beginner goal
+You don't need to become a QML researcher. A good goal:
 
-You do not need to become a QML researcher immediately. A good beginner goal is:
+- [ ] Read a kernel tutorial without getting lost
+- [ ] Write a parameterized feature map
+- [ ] Write a variational ansatz
+- [ ] Understand where trainable parameters live
+- [ ] Debug a circuit before training
 
-- read a kernel tutorial without getting lost in the circuit layer
-- write a small parameterized ansatz
-- understand where trainable parameters live
-- know how to inspect a circuit before wrapping it in a training loop
+If you can do these, official tutorials become approachable.
 
-If you can do that, the official Qiskit Machine Learning tutorials become much more approachable.
+## What to Watch Out For
 
-## What to watch out for
-
-QML examples can become confusing for reasons that are not specifically "machine learning":
-
-- feature-map parameters versus trainable parameters
-- classical preprocessing versus quantum encoding
-- shot noise versus exact simulation
-- overcomplicated ansatzes that are hard to debug
-
-Keep the circuit part small until the workflow is stable.
+| Pitfall | Symptom |
+|---------|---------|
+| Too many qubits | Barren plateaus, noise |
+| Feature/ansatz confusion | Wrong parameters optimized |
+| Classical preprocessing | Data not encoded properly |
+| Shot noise | Inconsistent gradients |
 
 ## Checkpoint Exercises
 
-1. Install `qiskit-machine-learning` with `uv add qiskit-machine-learning`.
-2. Write a tiny parameterized feature map on 2 qubits.
-3. Write a simple variational ansatz with a few trainable angles.
-4. Explain which earlier chapters in this book support kernel methods and which support variational methods.
+### Exercise 1
+
+Install `qiskit-machine-learning`.
+
+### Exercise 2
+
+Write a 2-qubit feature map with parameterized rotations.
+
+### Exercise 3
+
+Write a 4-parameter variational ansatz.
+
+### Exercise 4
+
+Identify which earlier chapters support kernel methods vs variational methods.
+
+______________________________________________________________________
+
+*Next: [Next Steps](./next-steps.md)*

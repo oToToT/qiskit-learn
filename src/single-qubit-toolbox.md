@@ -1,118 +1,249 @@
-# The Single-Qubit Toolbox
+# The Plus/Minus Basis and Basis Changes
 
-Most early QCoder problems are really asking one question:
+This chapter ties together everything you've learned about single-qubit gates and introduces the powerful concept of basis changes—a mental model that underlies many quantum algorithms.
 
-"Can you control one qubit well?"
+## The Four Cardinal Bases
 
-That sounds small, but one-qubit fluency carries a lot of the book.
+Every single-qubit state can be expressed in any of these bases:
 
-## The first gates to master
+| Basis | States | Created By |
+|-------|--------|------------|
+| Computational (Z) | \\(\|0\\rangle\\), \\(\|1\\rangle\\) | \\(I\\), \\(X\\) |
+| Plus/Minus (X) | \\(\|+\\rangle\\), \\(\|-\\rangle\\) | \\(H\\), \\(HX\\) |
+| Circular (Y) | \\(\|+i\\rangle\\), \\(\|-i\\rangle\\) | \\(HS^\\dagger\\), etc. |
 
-- `x`: swaps `|0>` and `|1>`
-- `z`: flips the sign of `|1>`
-- `h`: changes between the computational basis and the plus/minus basis
-- `rx`, `ry`, `rz`: continuous rotations
-- `p`: adds a phase to `|1>`
+Understanding how to switch between bases is crucial for quantum algorithms.
 
-You do not need every gate in the library yet. You do need to know what these do without hesitation.
+## The Computational Basis (Z Basis)
 
-## `ry` as a state-preparation tool
+The default basis:
 
-For real amplitudes, `ry(theta)` is the cleanest gate to learn first:
-
-\\[ R_y(\theta)|0\rangle = \cos(\theta/2)|0\rangle + \sin(\theta/2)|1\rangle \\]
-
-This equation matters because it lets you design a target probability instead of guessing.
-
-For example, if you want probability `3/4` on `|1>`, then you want:
-
-\\[ \sin^2(\theta/2) = 3/4 \\]
-
-so one valid choice is `theta = 2 * asin(sqrt(3) / 2) = 2pi/3`.
+- Eigenstates of the Z operator
+- \\(|0\\rangle\\) and \\(|1\\rangle\\)
+- Created by: \\(I\\) (for \\(|0\\rangle\\)), \\(X\\) (for \\(|1\\rangle\\))
 
 ```python
-from math import pi
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
+# |0⟩ in Z basis
 qc = QuantumCircuit(1)
-qc.ry(2 * pi / 3, 0)
-print(Statevector.from_instruction(qc))
+print("|0⟩:", Statevector.from_instruction(qc))
+
+# |1⟩ in Z basis
+qc.x(0)
+print("|1⟩:", Statevector.from_instruction(qc))
 ```
 
-## Why `z` feels useless until it does not
+## The Plus/Minus Basis (X Basis)
 
-If your qubit is definitely `|0>`, then `z` appears to do nothing.
+Eigenstates of the X operator:
 
-But after a Hadamard, `z` changes relative phase:
+- \\(|+\\rangle = \\frac{|0\\rangle+|1\\rangle}{\\sqrt{2}}\\)
+- \\(|-\\rangle = \\frac{|0\\rangle-|1\\rangle}{\\sqrt{2}}\\)
+- Created by: \\(H\\) (for \\(|+\\rangle\\)), \\(XH\\) or \\(HX\\) (for \\(|-\\rangle\\))
 
-\\[ Z\frac{|0\rangle + |1\rangle}{\sqrt{2}} = \frac{|0\rangle - |1\rangle}{\sqrt{2}} \\]
+```python
+# |+⟩ in X basis
+qc = QuantumCircuit(1)
+qc.h(0)
+print("|+⟩:", Statevector.from_instruction(qc))
 
-That is enough to change later interference.
+# |−⟩ in X basis
+qc.x(0)
+qc.h(0)
+print("|−⟩:", Statevector.from_instruction(qc))
+```
 
-## The plus/minus basis is not optional
+## The Key Identity: HZH = X
 
-The states
+This identity reveals the connection between bases:
 
-\\[ |+\rangle = \frac{|0\rangle + |1\rangle}{\sqrt{2}}, \qquad |-\rangle = \frac{|0\rangle - |1\rangle}{\sqrt{2}} \\]
+\\[HZH = X\\]
 
-show up constantly:
+What does this mean?
 
-- `|+>` is what `h` creates from `|0>`
-- `|->` is what `h` creates from `|1>`
-- `|->` is the standard ancilla state for phase kickback tricks
-
-You do not need to worship this notation. You do need to recognize it instantly.
-
-## Learn one tiny identity well
-
-\\[ H Z H = X \\]
-
-This is not just algebra. It is the smallest example of a powerful idea:
-
-1. phase information exists in one basis
-2. change basis
-3. the same action looks like a bit flip
-
-You can check it directly:
+- \\(H\\) changes from Z basis to X basis
+- \\(Z\\) acts (phase flip)
+- \\(H\\) changes back from X basis to Z basis
+- Net effect: bit flip!
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Operator
 
-lhs_circuit = QuantumCircuit(1)
-lhs_circuit.h(0)
-lhs_circuit.z(0)
-lhs_circuit.h(0)
+# Build HZH
+qc_hzh = QuantumCircuit(1)
+qc_hzh.h(0)
+qc_hzh.z(0)
+qc_hzh.h(0)
 
-rhs_circuit = QuantumCircuit(1)
-rhs_circuit.x(0)
+# Build X
+qc_x = QuantumCircuit(1)
+qc_x.x(0)
 
-lhs = Operator(lhs_circuit)
-rhs = Operator(rhs_circuit)
-print(lhs == rhs)
+# Are they equal?
+print("HZH == X:", Operator(qc_hzh) == Operator(qc_x))
 ```
 
-If you prefer not to rely on operator equality, test both circuits on `|0>` and `|1>` with `Statevector`.
+## General Basis Change Formula
 
-## Relative phase versus global phase
+In general, to transform an operation from one basis to another:
 
-This distinction becomes important very early.
+\\[B \\cdot \\text{Operation} \\cdot B^\\dagger = \\text{New Operation}\\]
 
-- multiplying the entire state by `-1` does not change physical behavior
-- changing only one branch by `-1` does change interference
+Where \\(B\\) is the basis change operation.
 
-So `-|1>` and `|1>` are physically equivalent, but `(|0> + |1>)/sqrt(2)` and `(|0> - |1>)/sqrt(2)` are not.
+For the X-Z connection: \\(HZH = X\\)
+
+## Basis Changes in Practice
+
+### Problem: Apply X in the X basis
+
+In the X basis, the eigenstates are \\(|+\\rangle\\) and \\(|-\\rangle\\). But we want to "flip" \\(|+\\rangle\\) to \\(|-\\rangle\\).
+
+Solution: Change to Z basis, flip, change back.
+
+```python
+# Flip |+⟩ to |−⟩
+qc = QuantumCircuit(1)
+
+# Start with |+⟩
+qc.h(0)
+
+# Change to Z basis, apply X, change back
+qc.h(0)  # |+⟩ → |0⟩
+qc.x(0)  # |0⟩ → |1⟩
+qc.h(0)  # |1⟩ → |−⟩
+
+print(Statevector.from_instruction(qc))
+```
+
+This is equivalent to applying Z in the original basis!
+
+## The Complete Picture: All Pauli Conjugates
+
+The Hadamard gate transforms all Pauli gates:
+
+| Gate | Transform |
+|------|-----------|
+| \\(H X H = Z\\) | X ↔ Z |
+| \\(H Y H = -Y\\) | Y stays Y (up to global phase) |
+| \\(H Z H = X\\) | Z ↔ X |
+
+```python
+from qiskit.quantum_info import Operator
+
+# Verify all three
+for op, name in [('x', 'X'), ('y', 'Y'), ('z', 'Z')]:
+    qc = QuantumCircuit(1)
+    qc.h(0)
+    getattr(qc, op)(0)
+    qc.h(0)
+    
+    x_qc = QuantumCircuit(1)
+    if name == 'Y':
+        x_qc.y(0)
+        x_qc.x(0)
+    else:
+        x_qc.x(0)
+    
+    # We expect X → Z, Z → X, Y → Y
+    print(f"H {name} H =", Operator(qc).simplify())
+```
+
+## Why Basis Changes Matter
+
+Basis changes are central to many quantum algorithms:
+
+1. **Phase kickback**: Use basis changes to move phase information
+1. **Measurement basis**: Measure in different bases to extract different information
+1. **Algorithm design**: QFT, Grover, and others use basis changes extensively
+
+## Measuring in Different Bases
+
+You can measure in any basis by changing to that basis first:
+
+```python
+from qiskit import QuantumCircuit
+from qiskit.primitives import StatevectorSampler
+
+# Measure |+⟩ in Z basis: 50-50
+qc = QuantumCircuit(1)
+qc.h(0)  # Create |+⟩
+qc.measure_all()
+
+sampler = StatevectorSampler()
+result = sampler.run([qc], shots=100).result()
+print("|+⟩ in Z basis:", result[0].data.meas.get_counts())
+
+# Measure |+⟩ in X basis: always 0 (because |+⟩ is |0⟩ in X basis)
+qc2 = QuantumCircuit(1)
+qc2.h(0)  # Create |+⟩
+qc2.h(0)  # Change to X basis for measurement
+qc2.measure_all()
+
+result2 = sampler.run([qc2], shots=100).result()
+print("|+⟩ in X basis:", result2[0].data.meas.get_counts())
+```
+
+## Summary of Single-Qubit Mastery
+
+You now know all the single-qubit tools:
+
+| Gate | Code | Purpose |
+|------|------|---------|
+| X | `x(q)` | Bit flip |
+| Y | `y(q)` | Bit + phase flip |
+| Z | `z(q)` | Phase flip |
+| H | `h(q)` | Create superposition / basis change |
+| P | `p(θ, q)` | Add phase |
+| RX | `rx(θ, q)` | Rotation around x-axis |
+| RY | `ry(θ, q)` | Rotation around y-axis |
+| RZ | `rz(θ, q)` | Rotation around z-axis |
 
 ## Checkpoint Exercises
 
-1. Prepare the minus state.
-2. Prepare a state with `P(1)=3/4`.
-3. Verify `H Z H = X` on `|0>` and `|1>`.
-4. Build three different circuits for `-|1>` and confirm they differ only by global phase.
+### Exercise 1
+
+Create \\(|-\\rangle\\) starting from \\(|0\\rangle\\) using only \\(H\\) and \\(Z\\).
+
+### Exercise 2
+
+Verify that \\(HZH = X\\) on both \\(|0\\rangle\\) and \\(|1\\rangle\\).
+
+### Exercise 3
+
+Measure \\(|-\\rangle\\) in the Z basis. What do you expect? Verify with code.
+
+### Exercise 4
+
+Design a circuit that flips \\(|+\\rangle\\) to \\(|-\\rangle\\).
+
+### Exercise 5
+
+Explain in your own words why \\(HZH = X\\).
+
+## Summary
+
+Key concepts:
+
+- Four main bases: Z (computational), X (plus/minus), Y (circular)
+- \\(H\\) connects Z and X bases
+- \\(HZH = X\\) shows the relationship between operations in different bases
+- You can measure in any basis by changing bases first
+- Basis changes are fundamental to quantum algorithms
+
+With single-qubit gates mastered, you're ready for the multi-qubit world.
+
+______________________________________________________________________
 
 ## Try These On QCoder
 
-- [QPC001 A3, Generate Minus state](https://www.qcoder.jp/en/contests/QPC001/problems/A3)
-- [QPC002 B1, Generate State e^(i theta)|0>](https://www.qcoder.jp/en/contests/QPC002/problems/B1)
-- [QPC003 B3, Generate State tensor_i (cos T_i |0> + sin T_i |1>)](https://www.qcoder.jp/en/contests/QPC003/problems/B3)
+- [QPC001 A3: Generate Minus state](https://www.qcoder.jp/en/contests/QPC001/problems/A3)
+- [QPC002 B1: Generate State e^(i theta)|0>](https://www.qcoder.jp/en/contests/QPC002/problems/B1)
+- [QPC003 B3: Generate State tensor_i (cos T_i |0> + sin T_i |1>)](https://www.qcoder.jp/en/contests/QPC003/problems/B3)
+
+______________________________________________________________________
+
+*Next: [Controlled Operations: CNOT](./two-qubits.md)*

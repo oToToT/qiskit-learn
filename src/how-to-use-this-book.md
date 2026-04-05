@@ -1,81 +1,197 @@
 # How To Use This Book
 
-This book is meant to be worked through, not merely read.
+This book works best when you treat it like a **lab manual**, not a novel.
 
-Every chapter is built around the same loop:
+That means: reading is only half the battle. The other half is typing code, running it, breaking it, and fixing it.
 
-1. learn one mental model
-2. type one or two short Qiskit examples
-3. inspect the exact state before measuring
-4. solve the chapter exercises
-5. try one or two linked QCoder problems while the idea is still fresh
+## The Chapter Pattern
 
-## The chapter pattern
+Every chapter follows this rhythm:
 
-Most chapters follow four layers.
+```
+1. Learn one mental model
+   ↓
+2. Type a short Qiskit example
+   ↓
+3. Predict the result before running
+   ↓
+4. Run and compare
+   ↓
+5. Solve checkpoint exercises
+   ↓
+6. Try a QCoder problem
+```
 
-## Core idea
+Skip the steps, and you'll finish the book without the skills to use it.
 
-This is the conceptual layer. Examples:
+## Four Layers Per Chapter
 
-- a Hadamard is a basis change, not just a gate symbol
-- `cx(control, target)` is a conditional action on the target
-- a phase can be invisible in immediate measurement counts but still matter later
+Most chapters have four layers:
 
-If you skip this layer, Qiskit becomes syntax memorization.
+### 1. The Mental Model
 
-## Qiskit move
+This is the conceptual understanding. Examples:
 
-This is the API layer. You will repeatedly use:
+- "A Hadamard gate is a basis change, not just a gate symbol"
+- "`cx(control, target)` means 'flip the target if the control is 1'"
+- "A phase can be invisible in immediate counts but still matter later"
 
-- `QuantumCircuit` to write circuits
-- `Statevector.from_instruction` to inspect exact amplitudes
-- `StatevectorSampler` to test measurement distributions
-- `compose`, `inverse`, and `control` to assemble larger circuits
+If you skip this layer, Qiskit becomes memorization instead of understanding.
 
-The book deliberately reuses these tools until they feel routine.
+### 2. The Qiskit Move
 
-## Worked pattern
+This is the code pattern you'll use repeatedly:
 
-This is the design layer. You should learn to recognize patterns such as:
+- `QuantumCircuit` to define circuits
+- `Statevector.from_instruction` to inspect exact states
+- `StatevectorSampler` to sample measurement outcomes
+- `compose`, `inverse`, `control` to assemble larger circuits
 
-- prepare a basis state
-- create a uniform superposition
-- turn a condition into a phase flip
-- convert a bit-flip oracle into a phase oracle
-- prepare, reflect, unprepare
+These tools are reused until they feel routine.
+
+### 3. The Worked Pattern
+
+This is the circuit design skill:
+
+- preparing a basis state
+- creating superposition
+- building an oracle
+- implementing a reflection
 
 Once you can name a pattern, many QCoder problems stop feeling unique.
 
-## Exercises
+### 4. The Exercises
 
-The exercises are where the chapter becomes useful.
+Exercises are where learning becomes skill. Each chapter includes:
 
-Each chapter ends with:
+- **Checkpoint exercises** — targeted practice with the chapter's concept
+- **QCoder problems** — linked challenges from QCoder contests
 
-- checkpoint exercises that force you to restate the idea in your own code
-- a short set of linked QCoder problems that use the same pattern in a less guided setting
+## The Reading Rhythm
 
-## A practical reading strategy
+For each chapter, use this rhythm:
 
-Use this rhythm for each chapter:
+1. **Read once** without writing code (get the big picture)
+1. **Type every code block yourself** (muscle memory)
+1. **Predict the result** before running (this is critical)
+1. **Run and compare** (did you get what you expected?)
+1. **Change one thing** and predict again (explore)
+1. **Solve at least one QCoder problem** before moving on
 
-1. read the chapter once without writing code
-2. type every code block yourself
-3. predict the state or counts before running anything
-4. change one gate and explain what changed
-5. solve at least one linked QCoder problem before moving on
+That last step matters. If you only read, the material will feel clearer than it really is. QCoder problems expose gaps in understanding that passive reading hides.
 
-That last step matters. If you only read, the material will feel clearer than it really is.
+## The Statevector-First Workflow
 
-## What to do when you get stuck
+Here is the workflow that will save you hours of frustration:
 
-When a circuit does not behave as expected, check these in order:
+1. Write the circuit                        
+2. Inspect `Statevector.from_instruction()`
+3. Predict what you expect                  
+4. Compare actual vs expected               
+5. If wrong: debug using the checklist below
+6. Only then: measure and sample            
 
-1. did I misunderstand qubit order?
-2. am I looking at amplitudes or only at counts?
-3. did I accidentally measure too early?
-4. did I forget an inverse or uncompute step?
-5. am I confusing relative phase with global phase?
+This order matters because:
 
-That checklist will save you a surprising amount of time.
+- The statevector tells you *exactly* what the circuit does
+- Sampling only shows statistical outcomes
+- Many bugs are invisible in counts but obvious in amplitudes
+
+## The Debugging Checklist
+
+When a circuit doesn't behave as expected, check these in order:
+
+| # | Check | What to look for |
+|---|-------|------------------|
+| 1 | **Qubit ordering** | Is `\|10>` interpreted as you expect? |
+| 2 | **Amplitudes vs counts** | Are you looking at the right thing? |
+| 3 | **Measurement timing** | Did you measure too early? |
+| 4 | **Inverse/uncompute** | Did you forget to undo temporary operations? |
+| 5 | **Global vs relative phase** | `-1` on one branch vs `-1` on all branches |
+| 6 | **Control vs target** | Is your CNOT control-target correct? |
+
+This checklist resolves a surprising number of "quantum mysteries."
+
+## QCoder: Your Practice Partner
+
+QCoder problems are structured challenges that test your circuit-building skills. Each problem:
+
+- Provides a clear specification
+- Tests your circuit against known inputs
+- Gives immediate feedback on correctness
+
+**How to use them:**
+
+1. Finish a chapter's exercises
+1. Pick a linked QCoder problem (see the [QCoder Problem Catalog](./qcoder-catalog.md))
+1. Read the problem description carefully
+1. Design your circuit on paper first
+1. Implement in Qiskit
+1. Submit and iterate
+
+QCoder is unforgiving in the best way: either your circuit works, or it doesn't.
+
+**Current QCoder Problems:** 79 problems across 6 contests, organized by topic in the [QCoder Problem Catalog](./qcoder-catalog.md).
+
+## When You Get Stuck
+
+Getting stuck is part of the process. Here's what to do:
+
+### On conceptual confusion:
+
+- Reread the mental model section
+- Draw the circuit by hand
+- Google with the phrase "qiskit [concept] example"
+
+### On code errors:
+
+- Copy the exact error message
+- Check Qiskit version (`pip show qiskit`)
+- Try the book's exact code first
+
+### On circuit behavior:
+
+- Add `print(Statevector.from_instruction(qc))` to see what's happening
+- Test on the simplest possible input
+- Check the debugging checklist
+
+### On QCoder problems:
+
+- Read the problem statement again (twice)
+- Verify you understand the input/output format
+- Check if there's a hint in the problem comments
+- Try the problem with fewer qubits first
+
+## How This Book Is Organized
+
+The book has six parts:
+
+| Part | Topic | Approx. Difficulty |
+|------|-------|-------------------|
+| I | Hello, Quantum World | Getting started |
+| II | Single-Qubit Toolkit | Foundational |
+| III | Two-Qubit Territory | Foundational |
+| IV | Circuit Patterns | Intermediate |
+| V | Algorithms | Intermediate/Advanced |
+| VI | Putting It Together | Applied |
+
+Don't skip parts. Each one builds on the previous.
+
+## A Note on Pacing
+
+This book is designed to be worked through over several weeks, not read in a weekend.
+
+If you're doing one chapter per day:
+
+- Days 1-5: Part I (Foundations)
+- Days 6-12: Part II (Single-Qubit)
+- Days 13-18: Part III (Two-Qubit)
+- Days 19-25: Part IV (Patterns)
+- Days 26-32: Part V (Algorithms)
+- Days 33-35: Part VI (Application)
+
+Take breaks. Quantum intuition takes time to build.
+
+______________________________________________________________________
+
+*Next: [Setup](./setup.md)*

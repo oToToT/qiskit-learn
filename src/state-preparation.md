@@ -1,114 +1,212 @@
 # State Preparation Patterns
 
-QCoder loves state-preparation tasks because they expose whether you understand gates as transformations rather than names.
+State preparation is the art of designing circuits that produce specific quantum states. This chapter covers the most common patterns you'll encounter.
 
-This chapter is about designing states on purpose.
+## Pattern 1: Basis States
 
-## Pattern 1: basis states
+The simplest pattern: flip qubits to match the target basis state.
 
-To prepare `|101>`, flip the right qubits:
+To prepare \\(|101\\rangle\\):
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
 qc = QuantumCircuit(3)
-qc.x(0)
-qc.x(2)
+qc.x(0)  # q0 = 1 (rightmost)
+qc.x(2)  # q2 = 1 (leftmost)
 print(Statevector.from_instruction(qc))
 ```
 
-This is the easiest pattern, but it still forces you to respect qubit ordering.
+Remember: qubit 0 is the rightmost (least significant).
 
-## Pattern 2: equal superposition
+## Pattern 2: Uniform Superposition
 
-To create an equal superposition over all `n`-qubit basis states:
+Apply H to all qubits:
 
 ```python
-from qiskit import QuantumCircuit
+def uniform_superposition(n):
+    qc = QuantumCircuit(n)
+    for i in range(n):
+        qc.h(i)
+    return qc
 
-n = 3
-qc = QuantumCircuit(n)
-for i in range(n):
-    qc.h(i)
+# Test on 4 qubits
+qc = uniform_superposition(4)
+state = Statevector.from_instruction(qc)
+print(state)
 ```
 
-This is the most common starting state in search-style algorithms.
+This creates \\(\\frac{1}{\\sqrt{2^n}}\\sum\_{x=0}^{2^n-1}|x\\rangle\\).
 
-## Pattern 3: amplitudes first, routing second
+## Pattern 3: Superposition with Specific Weights
 
-Many hand-built two- and three-qubit states are easiest to construct by:
+Use RY to control probabilities:
 
-1. setting amplitudes on one qubit
-2. using controlled gates to route amplitude into the desired basis states
-3. fixing signs after the magnitudes are correct
+```python
+from math import pi, asin, sqrt
 
-That order matters because sign mistakes are easier to fix after the amplitude layout is already right.
+def prepare_amplitudes(amplitudes):
+    """Prepare a 1-qubit state with given amplitudes."""
+    # amplitudes = [alpha, beta]
+    alpha, beta = amplitudes
+    theta = 2 * asin(abs(beta))
+    qc = QuantumCircuit(1)
+    qc.ry(theta, 0)
+    if beta.real < 0:
+        qc.z(0)
+    return qc
 
-## Pattern 4: signs after probabilities
+# Create (√(3)/2)|0⟩ + (1/2)|1⟩
+qc = prepare_amplitudes([sqrt(3)/2, 0.5])
+print(Statevector.from_instruction(qc))
+```
 
-Two states can share the same measurement distribution and still differ meaningfully:
+## Pattern 4: Two-Qubit Routing
 
-\\[ \frac{|00\rangle + |11\rangle}{\sqrt{2}} \quad \text{and} \quad \frac{|00\rangle - |11\rangle}{\sqrt{2}} \\]
-
-That is when `z`, `cz`, and basis changes matter.
-
-## Pattern 5: build symmetry deliberately
-
-States like
-
-\\[ \frac{|100\rangle + |010\rangle + |001\rangle}{\sqrt{3}} \\]
-
-are good training because they force you to think in amplitudes, not just bit flips.
-
-They also start teaching you a useful habit: name the target state in math before you write any gates.
-
-## A concrete two-qubit construction
-
-Suppose you want:
-
-\\[ \sqrt{\frac{3}{4}}|00\rangle + \frac{1}{2}|11\rangle \\]
-
-One clean strategy is:
-
-1. use `ry` on qubit `0` to split amplitude between a `0` branch and a `1` branch
-2. use `cx(0, 1)` to copy the branch label into qubit `1`
+For states like \\(\\sqrt{\\frac{3}{4}}|00\\rangle + \\frac{1}{2}|11\\rangle\\):
 
 ```python
 from math import pi
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
 
 qc = QuantumCircuit(2)
-qc.ry(pi / 3, 0)
+# Use RY to set the branch split
+qc.ry(pi/3, 0)  # cos(π/6)² = 3/4, sin(π/6)² = 1/4
+# Copy the branch to qubit 1
 qc.cx(0, 1)
 print(Statevector.from_instruction(qc))
 ```
 
-This does not solve every state-preparation problem, but it shows a pattern that comes up constantly: prepare one branch variable, then route it with controls.
+The RY sets probabilities, then CNOT routes them.
 
-## Manual design versus `prepare_state`
+## Pattern 5: Unequal Superposition
 
-Qiskit has convenience methods that can load arbitrary states. Those are useful tools, but they are bad teachers.
+Create superpositions over a subset of states:
 
-Early in your learning, prefer manual constructions because they teach:
+```python
+# (|10⟩ + |11⟩)/√2
+qc = QuantumCircuit(2)
+qc.h(0)  # Creates (|0⟩ + |1⟩)/√2 on qubit 0
+qc.x(1)  # Set qubit 1 to |1⟩
+# Result: (|01⟩ + |11⟩)/√2? No! Check with statevector
+print(Statevector.from_instruction(qc))
+```
 
-- qubit order
-- amplitude planning
-- basis changes
-- sign correction
+Try this and verify. Then figure out how to get \\((|10\\rangle + |11\\rangle)/\\sqrt{2}\\).
 
-Later, when you already understand the circuit, a convenience routine can be fine.
+## Pattern 6: Sign-Encoded Information
+
+Add phases to distinguish states:
+
+```python
+# (|00⟩ - |11⟩)/√2
+qc = QuantumCircuit(2)
+qc.h(0)
+qc.cx(0, 1)
+qc.z(0)
+print(Statevector.from_instruction(qc))
+```
+
+Sign differences are invisible in immediate measurement but visible in interference.
+
+## Pattern 7: Multi-Qubit GHZ and W States
+
+### GHZ State
+
+```python
+def ghz_state(n):
+    qc = QuantumCircuit(n)
+    qc.h(0)
+    for i in range(n-1):
+        qc.cx(i, i+1)
+    return qc
+
+qc = ghz_state(5)
+print(Statevector.from_instruction(qc))
+```
+
+Creates \\(\\frac{|0...0\\rangle + |1...1\\rangle}{\\sqrt{2}}\\).
+
+### W State
+
+```python
+def w_state(n):
+    """Create (|100...0⟩ + |010...0⟩ + ... + |000...1⟩)/√n"""
+    qc = QuantumCircuit(n)
+    # More complex—requires multi-controlled rotations
+    # We'll cover this later
+    return qc
+```
+
+The W state is more complex to construct. For now, trust that it exists.
+
+## The State Preparation Checklist
+
+When designing a state preparation circuit:
+
+1. **Name the target state** in mathematical notation
+1. **Identify probabilities** for each basis state
+1. **Use RY to set branch probabilities**
+1. **Use CNOT to route amplitude** to correct basis states
+1. **Add phases** with Z or CZ to distinguish states
+1. **Verify** with Statevector before proceeding
+
+## Manual vs Convenience Methods
+
+Qiskit has `QuantumCircuit.initialize()`:
+
+```python
+from math import sqrt
+
+qc = QuantumCircuit(2)
+qc.initialize([sqrt(3)/2, 0, 0, 0.5])
+print(Statevector.from_instruction(qc))
+```
+
+This works but hides the circuit structure. **Manual construction teaches more.**
 
 ## Checkpoint Exercises
 
-1. Prepare the Bell state.
-2. Prepare the sign-flipped Bell state.
-3. Prepare the 3-qubit one-hot superposition above.
-4. Prepare a uniform superposition on four qubits.
+### Exercise 1
+
+Prepare \\(\\frac{|00\\rangle + |01\\rangle + |10\\rangle}{\\sqrt{3}}\\) (3-way superposition on 2 qubits)
+
+### Exercise 2
+
+Prepare \\(|010\\rangle\\) on 3 qubits
+
+### Exercise 3
+
+Prepare \\(\\frac{|00\\rangle + |11\\rangle}{\\sqrt{2}}\\)
+
+### Exercise 4
+
+Prepare \\(\\frac{|100\\rangle + |010\\rangle + |001\\rangle}{\\sqrt{3}}\\) (W state)
+
+### Exercise 5
+
+Design a state preparation for \\((|000\\rangle + |111\\rangle)/\\sqrt{2}\\)
+
+## Summary
+
+Key patterns:
+
+- Basis states: flip qubits with X
+- Superposition: apply H gates
+- Unequal amplitudes: use RY
+- Routing: use CNOT
+- Phases: use Z/CZ
+
+State preparation is foundational for everything that follows.
+
+______________________________________________________________________
 
 ## Try These On QCoder
 
-- [QPC001 A5, Generate State (sqrt(3)/2)|100> + (1/2)|011>](https://www.qcoder.jp/en/contests/QPC001/problems/A5)
-- [QPC003 A3, Generate State (|100> + |010> + |001>)/sqrt(3)](https://www.qcoder.jp/en/contests/QPC003/problems/A3)
-- [QPC003 A4, A5, and A6](https://www.qcoder.jp/en/contests/QPC003)
+- [QPC001 A5: Generate State (sqrt(3)/2)|100> + (1/2)|011>](https://www.qcoder.jp/en/contests/QPC001/problems/A5)
+- [QPC003 A3: Generate State (|100> + |010> + |001>)/sqrt(3)](https://www.qcoder.jp/en/contests/QPC003/problems/A3)
+- [QPC003 A4, A5, A6](https://www.qcoder.jp/en/contests/QPC003)
+
+______________________________________________________________________
+
+*Next: [Phase Kickback: Encoding in Phase](./phase-kickback.md)*

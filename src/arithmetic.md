@@ -1,123 +1,192 @@
-# Arithmetic And Modular Thinking
+# Arithmetic Circuits and Modular Thinking
 
-A surprising number of contest problems stop being scary once you reframe them as reversible arithmetic.
+Many quantum algorithms involve arithmetic operations. This chapter teaches you to think about quantum arithmetic as reversible basis-state transformations.
 
-## Why arithmetic matters
+## The Reversibility Constraint
 
-Arithmetic circuits show up in:
+Classical arithmetic often loses information:
 
-- modular algorithms
-- phase-estimation-style constructions
-- hidden-number tasks
-- more advanced QCoder problems
+- AND: 2 inputs → 1 output
+- Addition can overflow
 
-At first, you learn gates.
+Quantum arithmetic must be reversible:
 
-Then you learn state preparation and oracles.
+- Use ancilla qubits for results
+- Preserve inputs (or uncompute them)
 
-Then you learn that many harder circuits are really structured data movement:
+## Basis State Mapping
 
-- add a constant
-- shift a register
-- swap positions
-- apply a permutation reversibly
+Design arithmetic circuits by thinking about basis states:
 
-## Start with basis-state mappings
+| Operation | Mapping |
+|-----------|---------|
+| SWAP | \\(\|xy\\rangle \\rightarrow \|yx\\rangle\\) |
+| Increment | \\(\|x\\rangle \\rightarrow \|x+1 \\mod 2^n\\rangle\\) |
+| Add constant | \\(\|x\\rangle \\rightarrow \|x+k \\mod 2^n\\rangle\\) |
 
-Before you write any gates, write the intended action on basis states.
-
-Examples:
-
-- `|x, y> -> |y, x>` for a swap
-- `|x> -> |x + 1 mod 4>` for a cyclic shift on two qubits
-- `|x, 0> -> |x, f(x)>` for a reversible compute step
-
-This habit is more important than any individual gate trick.
-
-## Example 1: swap
-
-```python
-from qiskit import QuantumCircuit
-
-qc = QuantumCircuit(2)
-qc.swap(0, 1)
-print(qc)
-```
-
-This is a tiny arithmetic circuit because it permutes basis states reversibly.
-
-## Example 2: exhaustive testing on small registers
-
-For arithmetic-like circuits, exhaustive testing is often possible and should be routine.
+## SWAP: The Simplest Arithmetic Circuit
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
-def basis_state_circuit(bits: str) -> QuantumCircuit:
-    qc = QuantumCircuit(len(bits))
-    for i, bit in enumerate(reversed(bits)):
-        if bit == "1":
-            qc.x(i)
-    return qc
+# SWAP |xy⟩ → |yx⟩
+qc = QuantumCircuit(2)
+qc.swap(0, 1)
 
-swap = QuantumCircuit(2)
-swap.swap(0, 1)
-
-for bits in ["00", "01", "10", "11"]:
-    qc = basis_state_circuit(bits)
-    qc.compose(swap, inplace=True)
-    print(bits, "->", Statevector.from_instruction(qc))
+# Test on all inputs
+for bits in ['00', '01', '10', '11']:
+    qc_test = QuantumCircuit(2)
+    for i, b in enumerate(reversed(bits)):
+        if b == '1':
+            qc_test.x(i)
+    qc_test.compose(qc, inplace=True)
+    print(f"{bits} → {Statevector.from_instruction(qc_test)}")
 ```
 
-This is exactly the kind of harness you should build for small arithmetic and oracle circuits.
+## Increment
 
-## Example 3: cyclic shift as a permutation
+Adding 1 modulo \\(2^n\\):
 
-A cyclic shift problem is often easier to understand if you forget "quantum" for a moment and ask:
+```python
+def increment(n):
+    """Create a circuit that adds 1 modulo 2^n."""
+    qc = QuantumCircuit(n)
+    for i in range(n):
+        qc.x(i)  # Flip all qubits
+    qc.x(0)  # Correct for the all-ones case
+    return qc
 
-which basis state should each input basis state map to?
+# Test on 2 qubits
+inc = increment(2)
+for bits in ['00', '01', '10', '11']:
+    qc_test = QuantumCircuit(2)
+    for i, b in enumerate(reversed(bits)):
+        if b == '1':
+            qc_test.x(i)
+    qc_test.compose(inc, inplace=True)
+    print(f"{bits}+1 = {Statevector.from_instruction(qc_test)}")
+```
 
-If you can answer that cleanly, you can often synthesize the circuit using swaps, `x` gates, controls, or Fourier-basis tricks depending on the problem statement.
+## Addition in the Fourier Basis
 
-## Modular thinking
+Addition becomes phase rotation in the Fourier basis:
 
-Many quantum arithmetic tasks are modular by default. Registers have finite size, so operations wrap around.
+```python
+# Add k in Fourier basis
+def add_fourier(k, n):
+    qc = QuantumCircuit(n)
+    for i in range(n):
+        qc.p(2*pi*k/(2**(i+1)), i)
+    return qc
+```
 
-For a two-qubit register:
+This is more efficient than computational basis addition.
 
-- `3 + 1 mod 4 = 0`
-- `0 - 1 mod 4 = 3`
+## Modular Arithmetic
 
-If you forget the modulus, your intended mapping will not even be reversible.
+Many quantum algorithms require modular arithmetic (operations modulo \\(N\\)):
 
-## The design checklist
+\\[x + y \\pmod{N}\\]
 
-When building arithmetic circuits:
+Key property: all operations wrap around at \\(N\\).
 
-1. define the register layout explicitly
-2. state the intended mapping on basis states
-3. test small inputs exhaustively
-4. uncompute any temporary work registers
-5. only then optimize the circuit
+```python
+# Modular addition: (x + k) mod 4
+def add_mod_4(k):
+    qc = QuantumCircuit(2)
+    for _ in range(k):
+        qc.x(0)
+        qc.x(1)
+        qc.x(0)  # Correct for overflow
+    return qc
+```
 
-This is much more reliable than guessing from circuit diagrams.
+## Design Patterns
 
-## Arithmetic and QFT are connected
+### Pattern 1: Start with Basis States
 
-Some problems are easiest in the computational basis.
+Before writing gates, write the intended mapping:
 
-Others become cleaner in the Fourier basis because shifts and additions can become phase operations. That is why the QFT chapter sits nearby in the book. The real subject is not "another algorithm." It is another way of representing the same transformation.
+```
+|w⟩ → |w⟩    (identity)
+|w⟩ → |f(w)⟩ (transformation)
+```
+
+### Pattern 2: Test Exhausively
+
+For small circuits, test all possible inputs:
+
+```python
+def test_circuit(circuit, n_qubits, expected_mapping):
+    for i in range(2**n_qubits):
+        qc = QuantumCircuit(n_qubits)
+        # Prepare basis state |i⟩
+        for j in range(n_qubits):
+            if (i >> j) & 1:
+                qc.x(j)
+        qc.compose(circuit, inplace=True)
+        state = Statevector.from_instruction(qc)
+        # Check result
+```
+
+### Pattern 3: Use Ancillas Wisely
+
+- Use ancillas for intermediate results
+- Uncompute to restore ancillas to |0⟩
+- Minimize ancilla count when possible
+
+## Arithmetic and QFT
+
+Some arithmetic is easier in the Fourier basis:
+
+- Phase rotations implement addition
+- QFT → add phases → inverse QFT
+
+This is how Shor's algorithm implements modular exponentiation.
 
 ## Checkpoint Exercises
 
-1. Implement a 2-qubit swap and verify it on all basis states.
-2. Implement a cyclic shift on a small register.
-3. Define a reversible map for adding a known constant to a tiny register.
-4. Write tests that compare the output basis state for every input.
+### Exercise 1
+
+Implement a 2-qubit decrement (subtract 1).
+
+### Exercise 2
+
+Implement a 2-qubit circuit that computes \\(|x\\rangle \\rightarrow |2x \\mod 4\\rangle\\).
+
+### Exercise 3
+
+Test your increment circuit exhaustively on all 2-bit inputs.
+
+### Exercise 4
+
+Design a circuit that swaps \\(|01\\rangle\\) and \\(|10\\rangle\\) but leaves \\(|00\\rangle\\) and \\(|11\\rangle\\) unchanged.
+
+### Exercise 5
+
+Explain why modular arithmetic is necessary for quantum algorithms.
+
+## Summary
+
+Key concepts:
+
+- Arithmetic circuits map basis states
+- Must be reversible (use ancillas)
+- Test exhaustively on small inputs
+- Fourier basis simplifies some operations
+- Modular arithmetic wraps around
+
+Arithmetic circuits are building blocks for quantum algorithms like Shor's.
+
+______________________________________________________________________
 
 ## Try These On QCoder
 
-- [QPC002 B3, SWAP Qubits](https://www.qcoder.jp/en/contests/QPC002/problems/B3)
-- [QPC002 B5 through B8](https://www.qcoder.jp/en/contests/QPC002)
-- [QPC005 B2 and later Fourier-basis arithmetic problems](https://www.qcoder.jp/en/contests/QPC005)
+- [QPC002 B3: SWAP Qubits](https://www.qcoder.jp/en/contests/QPC002/problems/B3)
+- [QPC002 B5-B8](https://www.qcoder.jp/en/contests/QPC002)
+- [QPC005 B2: Cyclic Shift](https://www.qcoder.jp/en/contests/QPC005/problems/B2)
+
+______________________________________________________________________
+
+*Next: [A Productive Qiskit Workflow](./qiskit-workflow.md)*

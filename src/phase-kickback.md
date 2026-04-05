@@ -1,97 +1,197 @@
-# Phase Kickback And Basis Changes
+# Phase Kickback: Encoding in Phase
 
-Phase kickback is the point where many circuits stop looking like gate puzzles and start looking algorithmic.
+Phase kickback is one of the most elegant tricks in quantum computing. It lets you transfer information from control qubits to phases—enabling many quantum algorithms.
 
-## The shortest useful explanation
+## The Core Idea
 
-If a controlled operation targets a state that is an eigenstate of the target operation, then the control path can pick up phase information.
+When a controlled operation acts on an **eigenstate** of the target operation, the control qubit picks up the eigenvalue as a phase.
 
-For beginners, the practical meaning is simpler:
+In simpler terms: a controlled operation can move phase information from the target to the control.
 
-- you can encode information in phase
-- later basis changes can reveal it
+## The Simplest Example
 
-## The key identity again
+The \\(|-\\rangle\\) state is an eigenstate of X:
 
-\\[ H Z H = X \\]
+\\[X|-\\rangle = -|-\\rangle\\]
 
-This is the smallest example of a powerful pattern:
-
-1. phase information exists in one basis
-2. switch basis
-3. it becomes bit-flip information
-
-## The standard `|->` ancilla trick
-
-The state
-
-\\[ |-\rangle = \frac{|0\rangle - |1\rangle}{\sqrt{2}} \\]
-
-is special because `X|-\rangle = -|-\rangle`.
-
-That means a controlled-`X` aimed at a `|->` ancilla can transfer a sign back to the control condition.
-
-## A concrete example
+This means:
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
+# Prepare |-⟩ on qubit 1
 qc = QuantumCircuit(2)
+qc.x(1)      # |1⟩
+qc.h(1)      # H|1⟩ = |−⟩
 
-# Put the data qubit in superposition.
-qc.h(0)
-
-# Prepare ancilla in |->
-qc.x(1)
-qc.h(1)
-
-# Controlled-X from data to ancilla
+# Apply CNOT with |−⟩ as target
 qc.cx(0, 1)
 
 print(Statevector.from_instruction(qc))
 ```
 
-If you inspect the final state carefully, the branch where the control qubit is `1` picks up a minus sign.
+The \\(|1\\rangle\\) component on qubit 0 picks up a minus sign!
 
-## Why basis changes matter so much
+## What Happened?
 
-A phase can be hard to see if you stay in the computational basis. A Hadamard often makes the effect visible.
+Before:
+\\[|0\\rangle \\otimes |-\\rangle + |1\\rangle \\otimes |-\\rangle = (|0\\rangle + |1\\rangle) \\otimes |-\\rangle\\]
 
-For example:
+After CNOT:
+\\[|0\\rangle \\otimes |-\\rangle + |1\\rangle \\otimes X|-\\rangle = |0\\rangle \\otimes |-\\rangle - |1\\rangle \\otimes |-\\rangle = (|0\\rangle - |1\\rangle) \\otimes |-\\rangle\\]
+
+The control qubit now has the phase!
+
+## The Key Identity
+
+Remember from the basis change chapter:
+
+\\[HZH = X\\]
+
+This means:
+
+- \\(|+\\rangle\\) is the \\(+1\\) eigenstate of \\(Z\\) (eigenvalue \\(+1\\))
+- \\(|-\\rangle\\) is the \\(-1\\) eigenstate of \\(Z\\) (eigenvalue \\(-1\\))
+
+And:
+
+- \\(|0\\rangle\\) is the \\(+1\\) eigenstate of \\(Z\\) (eigenvalue \\(+1\\))
+- \\(|1\\rangle\\) is the \\(-1\\) eigenstate of \\(Z\\) (eigenvalue \\(-1\\))
+
+## Phase Kickback with Z
+
+Using \\(Z|1\\rangle = -|1\\rangle\\):
 
 ```python
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
+# Kickback with Z
+qc = QuantumCircuit(2)
+qc.h(0)      # Put control in superposition
+qc.x(1)      # Prepare |1⟩ (eigenstate of Z with eigenvalue -1)
+qc.cz(0, 1) # Controlled-Z
 
-qc = QuantumCircuit(1)
-qc.h(0)
-qc.z(0)
-qc.h(0)
 print(Statevector.from_instruction(qc))
 ```
 
-This ends in `|1>`. The middle `z` looked like a phase operation, but after basis changes it behaves like a bit flip.
+The \\(|1\\rangle\\) branch on qubit 0 picks up a minus sign.
 
-## Why QCoder likes this topic
+## Why Is This Useful?
 
-Several QCoder problems are really asking whether you can move cleanly between:
+Phase kickback lets you:
 
-- bit-flip language
-- phase-flip language
-- reflection language
+1. Encode classical information in phases
+1. Transfer phase information between qubits
+1. Create controlled operations from simpler ones
+1. Build oracles for Grover's algorithm
 
-If you can do that, Grover and Fourier-basis problems become much easier.
+## A Concrete Application: Phase Oracle
+
+A phase oracle marks a target state \\(|w\\rangle\\) by flipping its phase:
+
+\\[O_w|x\\rangle = \\begin{cases} -|x\\rangle & \\text{if } x = w \\ |x\\rangle & \\text{otherwise} \\end{cases}\\]
+
+For \\(|w\\rangle = |11\\rangle\\):
+
+```python
+# Phase oracle for |11⟩
+qc = QuantumCircuit(2)
+qc.h(0)
+qc.h(1)  # Put both in superposition
+qc.cz(0, 1)  # Mark |11⟩
+qc.h(0)
+qc.h(1)
+
+print(Statevector.from_instruction(qc))
+```
+
+Try this and verify that \\(|11\\rangle\\) gets the minus sign.
+
+## The Phase Kickback Pattern
+
+The standard phase kickback pattern:
+
+```python
+def phase_kickback(n_qubits, eigenstate_prep, controlled_op):
+    """Generic phase kickback circuit."""
+    qc = QuantumCircuit(n_qubits)
+    
+    # 1. Put control qubits in superposition
+    for i in range(n_qubits - 1):
+        qc.h(i)
+    
+    # 2. Prepare eigenstate on ancilla
+    eigenstate_prep(qc)
+    
+    # 3. Apply controlled operation
+    controlled_op(qc)
+    
+    return qc
+```
+
+## Basis Changes Reveal Phase
+
+After phase kickback, you can't see the phase in computational basis measurement. Change to X basis:
+
+```python
+# Create phase, then measure in X basis
+qc = QuantumCircuit(2)
+qc.h(0)
+qc.x(1)
+qc.cz(0, 1)
+
+# Measure in X basis
+qc.h(0)  # Change to X basis
+qc.measure_all()
+
+from qiskit.primitives import StatevectorSampler
+sampler = StatevectorSampler()
+result = sampler.run([qc], shots=100).result()
+print(result[0].data.meas.get_counts())
+```
+
+The phase becomes a bit flip in the X basis.
 
 ## Checkpoint Exercises
 
-1. Show with Qiskit that `H Z H` and `X` act the same on `|0>` and `|1>`.
-2. Prepare a minus-state ancilla and test a controlled bit-flip against a phase oracle.
-3. Explain in one paragraph why equal measurement counts can still hide useful phase structure.
-4. Build a circuit that converts a phase condition into a measurable bit condition.
+### Exercise 1
+
+Show that \\(HZH = X\\) using phase kickback logic.
+
+### Exercise 2
+
+Create a circuit where qubit 0 picks up phase \\(\\pi/2\\) (not \\(\\pi\\)).
+
+### Exercise 3
+
+Build a phase oracle that marks \\(|00\\rangle\\).
+
+### Exercise 4
+
+Explain why \\(|+\\rangle\\) and \\(|-\\rangle\\) measure the same in Z basis but differently in X basis.
+
+### Exercise 5
+
+Design a circuit that transfers phase from qubit A to qubit B.
+
+## Summary
+
+Key concepts:
+
+- Phase kickback: controlled operations on eigenstates create phase on controls
+- \\(|-\\rangle\\) is the \\(-1\\) eigenstate of \\(X\\)
+- \\(|1\\rangle\\) is the \\(-1\\) eigenstate of \\(Z\\)
+- Phase kickback enables oracles and many algorithms
+
+Phase kickback is fundamental to understanding Grover's algorithm and quantum phase estimation.
+
+______________________________________________________________________
 
 ## Try These On QCoder
 
-- [QPC003 B2, Convert Bit-Flip into Phase-Flip I](https://www.qcoder.jp/en/contests/QPC003/problems/B2)
-- [QPC003 Ex1, Convert Bit-Flip into Phase-Flip II](https://www.qcoder.jp/en/contests/QPC003/problems/Ex1)
-- [QPC005 B1, Action in the Fourier Basis](https://www.qcoder.jp/en/contests/QPC005/problems/B1)
+- [QPC003 B2: Convert Bit-Flip into Phase-Flip I](https://www.qcoder.jp/en/contests/QPC003/problems/B2)
+- [QPC003 Ex1: Convert Bit-Flip into Phase-Flip II](https://www.qcoder.jp/en/contests/QPC003/problems/Ex1)
+- [QPC005 B1: Action in the Fourier Basis](https://www.qcoder.jp/en/contests/QPC005/problems/B1)
+
+______________________________________________________________________
+
+*Next: [Reversible Logic and Oracles](./reversible-logic.md)*

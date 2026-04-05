@@ -1,113 +1,236 @@
 # Grover Search
 
-Grover is a perfect beginner algorithm because it is both important and readable.
+Grover's algorithm is the most famous quantum search algorithm. It finds a marked item in an unsorted database of \\(N\\) items in \\(O(\\sqrt{N})\\) steps— quadratically faster than classical search.
 
-It is also a good test of whether you actually understand the earlier chapters. Grover combines:
+## The Problem
 
-- uniform superposition
-- phase marking
-- reflections
-- iteration count
+Given an unsorted list of \\(N\\) items, find the one marked "good."
 
-If any one of those ideas is weak, Grover becomes a ritual instead of an algorithm.
+Classically: \\(O(N)\\) operations.
 
-## The two-step loop
+With Grover: \\(O(\\sqrt{N})\\) operations.
 
-For a small search space:
+## The Quantum Insight
 
-1. mark the good state with an oracle
-2. apply the diffusion operator
+Rather than searching through items one by one, Grover's algorithm:
 
-That combination amplifies the marked state's amplitude.
+1. Creates uniform superposition over all items
+1. Uses an oracle to mark the target
+1. Amplifies the marked state's amplitude (amplitude amplification)
 
-## A minimal 2-qubit example
+## The Circuit Structure
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  H⊗n ──[Oracle]── H⊗n ──[Diffusion]── H⊗n ──[Oracle]── ...│
+│                                                             │
+│              One Grover Iteration                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Building Grover's Algorithm
+
+### Step 1: Uniform Superposition
 
 ```python
 from qiskit import QuantumCircuit
-from qiskit.primitives import StatevectorSampler
+from qiskit.quantum_info import Statevector
+from math import pi
 
-qc = QuantumCircuit(2)
-qc.h([0, 1])
+n = 2  # 2 qubits = 4 items
+qc = QuantumCircuit(n)
+qc.h(range(n))
+print("Uniform superposition:", Statevector.from_instruction(qc))
+```
 
-# Oracle: mark |11>
-qc.cz(0, 1)
+### Step 2: Oracle (Mark the Target)
 
-# Diffusion
-qc.h([0, 1])
-qc.x([0, 1])
-qc.cz(0, 1)
-qc.x([0, 1])
-qc.h([0, 1])
+For target \\(|11\\rangle\\):
 
+```python
+def oracle_11():
+    qc = QuantumCircuit(n)
+    qc.cz(0, 1)  # Flip phase of |11⟩
+    return qc
+
+qc.compose(oracle_11(), inplace=True)
+print("After oracle:", Statevector.from_instruction(qc))
+```
+
+### Step 3: Diffusion (Amplify)
+
+```python
+def diffusion():
+    qc = QuantumCircuit(n)
+    qc.h(range(n))
+    qc.x(range(n))
+    qc.h(n-1)
+    qc.mcx(list(range(n-1)), n-1)
+    qc.h(n-1)
+    qc.x(range(n))
+    qc.h(range(n))
+    return qc
+
+qc.compose(diffusion(), inplace=True)
+print("After diffusion:", Statevector.from_instruction(qc))
+```
+
+### Step 4: Measure
+
+```python
 qc.measure_all()
-
+from qiskit.primitives import StatevectorSampler
 sampler = StatevectorSampler()
 result = sampler.run([qc], shots=256).result()
 print(result[0].data.meas.get_counts())
 ```
 
-For this case, `"11"` should dominate.
+The target \\(|11\\rangle\\) should dominate.
 
-## What the diffusion step is really doing
+## Understanding the Amplification
 
-The diffusion block is often described as "reflection about the average."
+| Stage | \\(\|11\\rangle\\) Amplitude |
+|-------|------------------------|
+| Start (uniform) | \\(1/\\sqrt{4} = 0.5\\) |
+| After oracle | \\(-0.5\\) (flipped sign) |
+| After diffusion | \\(\\approx 1.0\\) (amplified) |
 
-That is not poetry. It is the right mental model.
+The diffusion step reflects about the mean amplitude, boosting the negative amplitude.
 
-Starting from the uniform superposition, the oracle makes the marked branch negative. The diffusion step then reflects amplitudes around their mean value, which increases the marked amplitude and decreases the others.
+## Optimal Iteration Count
 
-## Inspecting Grover without measurement
+For \\(N\\) items with \\(M\\) marked items:
 
-You should also look at Grover with exact simulation:
+- Optimal iterations \\(\\approx \\frac{\\pi}{4}\\sqrt{\\frac{N}{M}}\\)
+- Too few: amplitude not fully amplified
+- Too many: amplitude rotates past target
 
 ```python
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
-
-qc = QuantumCircuit(2)
-qc.h([0, 1])
-qc.cz(0, 1)
-qc.h([0, 1])
-qc.x([0, 1])
-qc.cz(0, 1)
-qc.x([0, 1])
-qc.h([0, 1])
-
-print(Statevector.from_instruction(qc))
+def grover_search(n, target, iterations=1):
+    qc = QuantumCircuit(n)
+    qc.h(range(n))
+    
+    for _ in range(iterations):
+        # Oracle
+        for i, bit in enumerate(target):
+            if bit == '1':
+                qc.x(i)
+        qc.h(n-1)
+        qc.mcx(list(range(n-1)), n-1)
+        qc.h(n-1)
+        for i, bit in enumerate(target):
+            if bit == '1':
+                qc.x(i)
+        
+        # Diffusion
+        qc.h(range(n))
+        qc.x(range(n))
+        qc.h(n-1)
+        qc.mcx(list(range(n-1)), n-1)
+        qc.h(n-1)
+        qc.x(range(n))
+        qc.h(range(n))
+    
+    qc.measure_all()
+    return qc
 ```
 
-This lets you see the amplitude amplification directly instead of only as a final histogram.
+## Testing on Different Targets
 
-## One iteration is not a universal rule
+```python
+# Search for |01⟩ on 2 qubits
+qc = grover_search(2, '01', iterations=1)
+result = sampler.run([qc], shots=256).result()
+print("Searching for |01⟩:", result[0].data.meas.get_counts())
+```
 
-For tiny examples, one iteration can be enough. In larger spaces, the best number of iterations depends on the fraction of marked states.
+## Visualizing Amplitude Evolution
 
-The high-level idea is:
+```python
+import matplotlib.pyplot as plt
 
-- too few iterations and the marked amplitude is still small
-- too many iterations and you rotate past the target
+def grover_amplitudes(n, target):
+    """Return amplitudes after each iteration."""
+    amplitudes = []
+    
+    qc = QuantumCircuit(n)
+    qc.h(range(n))
+    amplitudes.append(Statevector.from_instruction(qc))
+    
+    for _ in range(3):  # 3 iterations
+        # Oracle
+        for i, bit in enumerate(target):
+            if bit == '1':
+                qc.x(i)
+        qc.h(n-1)
+        qc.mcx(list(range(n-1)), n-1)
+        qc.h(n-1)
+        for i, bit in enumerate(target):
+            if bit == '1':
+                qc.x(i)
+        
+        # Diffusion
+        qc.h(range(n))
+        qc.x(range(n))
+        qc.h(n-1)
+        qc.mcx(list(range(n-1)), n-1)
+        qc.h(n-1)
+        qc.x(range(n))
+        qc.h(range(n))
+        
+        amplitudes.append(Statevector.from_instruction(qc))
+    
+    return amplitudes
 
-Even if you do not study the full derivation yet, you should know that the iteration count is part of the algorithm design.
-
-## A good debugging decomposition
-
-When Grover fails, test each component separately:
-
-1. does the oracle flip only the intended branch?
-2. does the diffusion step preserve the start state subspace correctly?
-3. after one iteration, do the amplitudes move in the direction you expect?
-
-That decomposition is much more useful than staring at the final counts.
+# Plot amplitudes for |11⟩ on 2 qubits
+amplitudes = grover_amplitudes(2, '11')
+for i, amp in enumerate(amplitudes):
+    print(f"Iteration {i}: |11⟩ amplitude = {amp[3]:.3f}")
+```
 
 ## Checkpoint Exercises
 
-1. Change the oracle so the marked state is `|00>`.
-2. Do the same for `|10>`.
-3. Build a 3-qubit oracle for one marked state and run one Grover iteration.
-4. Compare the statevector before and after the diffusion step.
+### Exercise 1
+
+Implement Grover's search for \\(|00\\rangle\\) on 2 qubits.
+
+### Exercise 2
+
+Search for \\(|101\\rangle\\) on 3 qubits.
+
+### Exercise 3
+
+Compare 1, 2, and 3 iterations. What happens with too many?
+
+### Exercise 4
+
+Search for one marked item among 8 (3 qubits). Verify speedup.
+
+### Exercise 5
+
+Explain why Grover's algorithm is optimal.
+
+## Summary
+
+Key concepts:
+
+- Grover searches unsorted data in \\(O(\\sqrt{N})\\)
+- Oracle marks target with phase flip
+- Diffusion amplifies marked amplitude
+- Optimal iterations \\(\\approx \\pi/4\\sqrt{N/M}\\)
+- Works by amplitude amplification, not parallelism
+
+Grover's algorithm is your first taste of quantum speedup. It shows how quantum mechanics can outperform classical computation.
+
+______________________________________________________________________
 
 ## Try These On QCoder
 
-- [QPC003 B6, Grover's Algorithm I](https://www.qcoder.jp/en/contests/QPC003/problems/B6)
-- [QPC003 B8, Grover's Algorithm II](https://www.qcoder.jp/en/contests/QPC003/problems/B8)
-- [QPC003 Ex2, Find Hidden Number](https://www.qcoder.jp/en/contests/QPC003/problems/Ex2)
+- [QPC003 B6: Grover's Algorithm I](https://www.qcoder.jp/en/contests/QPC003/problems/B6)
+- [QPC003 B8: Grover's Algorithm II](https://www.qcoder.jp/en/contests/QPC003/problems/B8)
+- [QPC003 Ex2: Find Hidden Number](https://www.qcoder.jp/en/contests/QPC003/problems/Ex2)
+
+______________________________________________________________________
+
+*Next: [Quantum Fourier Transform](./qft.md)*

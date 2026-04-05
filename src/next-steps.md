@@ -1,59 +1,114 @@
 # Next Steps
 
-When you finish this book, do not immediately jump to the hardest paper or the largest tutorial.
+You've completed the tutorial. Now what? Here's how to keep growing.
 
-Pick a lane and keep your practice deliberate.
+## If You Want to Get Stronger at QCoder
 
-## If you want to become strong at QCoder
+Practice with these contest archives:
 
-Repeat this loop:
+| Level | Problems | Focus |
+|-------|----------|-------|
+| Beginner | QPC001 A-series | State preparation |
+| Intermediate | QPC003 A-series | Complex state prep |
+| Intermediate | QPC002 B-series | Phase and oracles |
+| Advanced | QPC003 B-series | Reflections, Grover |
+| Advanced | QPC005 | Fourier basis |
 
-1. classify the problem family
-2. write the intended basis-state or phase action
-3. implement the smallest correct circuit
-4. test with exact simulation first
-5. only then optimize or submit
+Work through them in order. Each contest builds on the previous.
 
-Then work through contest archives in order instead of randomly.
+## If You Want Algorithm Depth
 
-A useful progression is:
+Next topics to study:
 
-- QPC001 and the `A` problems in QPC003 for state preparation
-- QPC002 B2 and QPC003 B2/Ex1 for oracle conversion and phase kickback
-- QPC003 B4 to B8 for reflections and Grover
-- QPC002 B4 to B8 and QPC005 for QFT and arithmetic thinking
+- **Quantum Phase Estimation** — Estimate eigenvalues of unitary operators
+- **Shor's Algorithm** — Factor integers (requires QFT + modular arithmetic)
+- **Quantum Walk Algorithms** — Generalization of Grover
+- **Amplitude Estimation** — Quantum version of Monte Carlo
 
-## If you want algorithm depth
+At this point, the official Qiskit tutorials become essential.
 
-Study next:
+## If You Want QML Depth
 
-- phase estimation
-- Hamiltonian simulation
-- amplitude estimation
-- fault-tolerant algorithm building blocks
+Next topics to study:
 
-At that point, QFT and reversible arithmetic stop being isolated chapters and start becoming reusable subroutines.
+- **Quantum Kernels** — Measure quantum state similarity
+- **Variational Quantum Eigensolvers (VQE)** — Find ground states
+- **Quantum Approximate Optimization (QAOA)** — Combinatorial optimization
+- **Hybrid Classical-Quantum Training** — Gradients, optimizers
 
-## If you want QML depth
+## If You Want Hardware Experience
 
-Study next:
+Next steps:
 
-- richer feature maps
-- trainable kernels
-- variational classifiers and regressors
-- hybrid integrations with classical ML frameworks
+1. Get an IBM Quantum account (free tier available)
+1. Run circuits on real quantum hardware
+1. Learn about transpilation (circuit rewriting for hardware)
+1. Study noise models and error mitigation
 
-Do not skip the workflow discipline from this book. QML code gets messy very quickly if the circuit layer is not under control.
+## The Standard to Maintain
 
-## A practical standard
+Don't settle for "I read about it." Hold yourself to:
 
-The useful goal is not "I read a quantum book."
+1. **State the transformation** — Can you write the intended unitary?
+1. **Implement it** — Can you write the circuit in Qiskit?
+1. **Test it** — Can you verify correctness on small inputs?
+1. **Explain it** — Can you explain why it works?
 
-It is:
+That standard keeps you honest.
 
-- I can state the intended transformation
-- I can implement it in Qiskit
-- I can test it
-- I can explain why it works
+## Recommended Resources
 
-That standard is enough to keep improving after the book ends.
+| Resource | Type | Level |
+|----------|------|-------|
+| [Qiskit Documentation](https://docs.quantum.ibm.com/) | Official docs | All levels |
+| [Qiskit Textbook](https://learn.qiskit.org/) | Tutorials | Beginner-Intermediate |
+| [QCoder](https://www.qcoder.jp/) | Practice problems | All levels |
+| [Mike & Ike](https://mikeikebook.org/) | Textbook | Advanced |
+
+## Official API References
+
+For quick reference while working through the chapters:
+
+### Core Qiskit
+- [QuantumCircuit API](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit)
+- [Statevector](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector)
+- [StatevectorSampler](https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.StatevectorSampler)
+- [Operator](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Operator)
+
+### Gates
+- [Single-qubit gates](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.UGate)
+- [Pauli gates (X, Y, Z)](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PauliGate)
+- [Hadamard gate](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.HGate)
+- [CNOT (CX) gate](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CXGate)
+- [CZ gate](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.CZGate)
+- [SWAP gate](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.SWAPGate)
+- [Rotation gates (RX, RY, RZ)](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.RXGate)
+- [Phase gate (P)](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate)
+
+### IBM Learning Courses
+- [Basics of Quantum Information](https://learning.quantum.ibm.com/course/basics-of-quantum-information)
+- [Fundamentals of Quantum Algorithms](https://learning.quantum.ibm.com/course/fundamentals-of-quantum-algorithms)
+- [Introduction to Quantum Superposition](https://learning.quantum.ibm.com/tutorial/introduction-to-quantum-superposition)
+- [Entanglement](https://learning.quantum.ibm.com/tutorial/entanglement)
+- [Multi-qubit circuits](https://learning.quantum.ibm.com/tutorial/multi-qubit-circuits)
+- [Phase kickback](https://learning.quantum.ibm.com/tutorial/phase-kickback-and-phase-rotations)
+
+### Qiskit Machine Learning
+- [Qiskit Machine Learning](https://qiskit.github.io/qiskit-machine-learning/)
+- [BellState circuit](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.BellGate)
+
+## A Final Thought
+
+Quantum computing is hard. Not hard like magic—hard like any deep technical skill. It rewards patience and systematic learning.
+
+You now have the foundation. The rest is practice.
+
+Build circuits. Break them. Fix them. Submit QCoder problems. Read the docs. Ask questions.
+
+The quantum future needs people who understand this stuff.
+
+Go make it happen.
+
+______________________________________________________________________
+
+*Congratulations on completing Qiskit for Curious Programmers!*

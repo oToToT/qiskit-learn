@@ -1,122 +1,169 @@
 # A Productive Qiskit Workflow
 
-Writing circuits is only half the job. The other half is debugging, testing, and structuring them so you can keep going.
+Writing circuits is half the job. The other half is debugging, testing, and structuring them. This chapter gives you a workflow that scales.
 
-## A good local workflow
+## The Core Loop
 
-For small and medium circuits:
+For every circuit you build:
 
-1. write a circuit constructor function
-2. inspect the exact state with `Statevector`
-3. sample with `StatevectorSampler`
-4. compare against the intended mathematical action
+1. Write the circuit constructor         
+2. Inspect `Statevector.from_instruction()`
+3. Predict the state                     
+4. Compare actual vs predicted           
+5. If wrong: debug using the checklist   
+6. Then: measure and sample              
 
-That is the core loop of this book because it works.
-
-## Write functions, not only loose notebook cells
-
-Even for tiny experiments, it helps to write:
+## Write Functions, Not Scripts
 
 ```python
 from qiskit import QuantumCircuit
 
 def bell_state() -> QuantumCircuit:
+    """Create a Bell state."""
     qc = QuantumCircuit(2)
     qc.h(0)
     qc.cx(0, 1)
     return qc
+
+def bell_minus() -> QuantumCircuit:
+    """Create the |Φ⁻⟩ state."""
+    qc = QuantumCircuit(2)
+    qc.h(0)
+    qc.cx(0, 1)
+    qc.z(0)
+    return qc
 ```
 
-This gives you something you can test, compose, invert, and control.
+Benefits:
 
-## Use exact simulation aggressively
+- Testable
+- Composable
+- Documented
+- Reusable
+
+## Use Statevector Aggressively
 
 ```python
 from qiskit.quantum_info import Statevector
 
 state = Statevector.from_instruction(bell_state())
-print(state)
+print("Probabilities:", state.probabilities())
+print("State:", state)
 ```
 
-Do this early and often. If the exact state is wrong, repeated sampling will only hide the reason.
+Before measurement, always check the statevector. It tells you exactly what's happening.
 
-## Sample only after you know what you expect
+> **Tip:** For the complete debugging checklist, see [How To Use This Book](./how-to-use-this-book.md#the-debugging-checklist).
+
+## Building Test Harnesses
+
+For arithmetic and oracle circuits:
 
 ```python
-from qiskit.primitives import StatevectorSampler
-
-qc = bell_state()
-qc.measure_all()
-
-sampler = StatevectorSampler()
-result = sampler.run([qc], shots=256).result()
-print(result[0].data.meas.get_counts())
+def test_basis_state_mapping(circuit, n_qubits, expected):
+    """Test a circuit on all basis states."""
+    results = {}
+    for i in range(2**n_qubits):
+        # Prepare input state
+        qc = QuantumCircuit(n_qubits)
+        for j in range(n_qubits):
+            if (i >> j) & 1:
+                qc.x(j)
+        
+        # Apply circuit
+        qc.compose(circuit, inplace=True)
+        
+        # Check output
+        state = Statevector.from_instruction(qc)
+        results[i] = state
+    
+    return results
 ```
 
-Sampling is a confirmation step, not your primary reasoning tool.
-
-## Reusable building blocks
-
-As your circuits grow, use:
-
-- helper functions
-- named subcircuits
-- `compose`
-- `inverse`
-- controlled versions of existing subcircuits
-
-This matters for QFT blocks, oracles, reflections, and variational ansatzes.
-
-## Parameters keep circuits honest
-
-Many useful circuits should not hard-code every angle.
-
-Use parameters when:
-
-- the same circuit shape is reused with many angles
-- you are doing variational optimization
-- a QCoder problem gives symbolic or input-dependent rotations
+## Use Parameters
 
 ```python
-from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 
-theta = Parameter("theta")
-qc = QuantumCircuit(1)
-qc.ry(theta, 0)
+def rotation_circuit(theta):
+    qc = QuantumCircuit(1)
+    qc.ry(theta, 0)
+    return qc
 
-print(qc)
-print(qc.assign_parameters({theta: 1.234}))
+theta = Parameter("θ")
+qc = rotation_circuit(theta)
+
+# Evaluate for different values
+for val in [0, pi/4, pi/2, pi]:
+    assigned = qc.assign_parameters({theta: val})
+    print(f"θ={val}: {Statevector.from_instruction(assigned)}")
 ```
 
-This is the beginning of a good workflow for QML and more advanced algorithm design.
+## Compose Large Circuits
 
-## Testing small reversible circuits
+```python
+# Build subcircuits
+oracle = phase_oracle_11()
+diffusion = diffusion_2qubit()
 
-For arithmetic and oracle circuits, a tiny test harness is often enough:
+# Compose into Grover iteration
+grover_iter = QuantumCircuit(2)
+grover_iter.compose(oracle, inplace=True)
+grover_iter.compose(diffusion, inplace=True)
+```
 
-1. prepare each small basis input
-2. apply the circuit
-3. inspect the resulting basis state or phase
-4. compare with the intended mapping
+## Inverse and Control
 
-Do not wait until a contest submission to discover that your qubit order was wrong.
+```python
+# Inverse of a circuit
+circuit_inverse = circuit.inverse()
 
-## What to inspect when something is wrong
+# Controlled version
+controlled_circuit = circuit.control()
 
-Check these in order:
+# Both
+controlled_inverse = circuit.inverse().control()
+```
 
-1. qubit ordering
-2. missing inverse or uncompute
-3. wrong control or target
-4. phase sign mistakes
-5. measurement added too early
+## Save and Load Circuits
 
-That checklist catches a large fraction of beginner bugs.
+```python
+# Save circuit
+qc.qasm()  # Returns OpenQASM string
+
+# Load circuit
+from qiskit import qasm2
+qc = qasm2.load("circuit.qasm")
+```
+
+## Summary Checklist
+
+- [ ] Write circuit constructors as functions
+- [ ] Inspect statevector before measurement
+- [ ] Build test harnesses for small circuits
+- [ ] Use parameters for reusable circuits
+- [ ] Compose subcircuits instead of writing monolithic circuits
+- [ ] Keep the debugging checklist in mind
+- [ ] Document what each circuit does
 
 ## Checkpoint Exercises
 
-1. Refactor one previous chapter's solution into a reusable helper.
-2. Write a small test harness that checks all 2-qubit basis inputs.
-3. Parameterize a one-qubit rotation circuit and evaluate it at two angles.
-4. Build a prepare-reflect-unprepare helper and reuse it for two targets.
+### Exercise 1
+
+Refactor a previous exercise into a function with tests.
+
+### Exercise 2
+
+Build a test harness that checks all 2-qubit basis inputs.
+
+### Exercise 3
+
+Parameterize a one-qubit rotation circuit.
+
+### Exercise 4
+
+Build a prepare-reflect-unprepare helper.
+
+______________________________________________________________________
+
+*Next: [Quantum Machine Learning with Qiskit](./qml.md)*
