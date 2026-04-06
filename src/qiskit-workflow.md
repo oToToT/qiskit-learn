@@ -6,12 +6,12 @@ Writing circuits is half the job. The other half is debugging, testing, and stru
 
 For every circuit you build:
 
-1. Write the circuit constructor         
-2. Inspect `Statevector.from_instruction()`
-3. Predict the state                     
-4. Compare actual vs predicted           
-5. If wrong: debug using the checklist   
-6. Then: measure and sample              
+1. Write the circuit constructor
+1. Inspect `Statevector()`
+1. Predict the state
+1. Compare actual vs predicted
+1. If wrong: debug using the checklist
+1. Then: measure and sample
 
 ## Write Functions, Not Scripts
 
@@ -46,7 +46,7 @@ Benefits:
 ```python
 from qiskit.quantum_info import Statevector
 
-state = Statevector.from_instruction(bell_state())
+state = Statevector(bell_state())
 print("Probabilities:", state.probabilities())
 print("State:", state)
 ```
@@ -74,7 +74,7 @@ def test_basis_state_mapping(circuit, n_qubits, expected):
         qc.compose(circuit, inplace=True)
         
         # Check output
-        state = Statevector.from_instruction(qc)
+        state = Statevector(qc)
         results[i] = state
     
     return results
@@ -96,7 +96,7 @@ qc = rotation_circuit(theta)
 # Evaluate for different values
 for val in [0, pi/4, pi/2, pi]:
     assigned = qc.assign_parameters({theta: val})
-    print(f"θ={val}: {Statevector.from_instruction(assigned)}")
+    print(f"θ={val}: {Statevector(assigned)}")
 ```
 
 ## Compose Large Circuits

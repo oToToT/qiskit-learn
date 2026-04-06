@@ -43,7 +43,7 @@ from qiskit.quantum_info import Statevector
 
 qc = QuantumCircuit(1)
 qc.z(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Output:
@@ -61,13 +61,13 @@ The state is still \\(|0\\rangle\\). No change.
 # Without Z
 qc1 = QuantumCircuit(1)
 qc1.h(0)
-print("H only:", Statevector.from_instruction(qc1))
+print("H only:", Statevector(qc1))
 
 # With Z
 qc2 = QuantumCircuit(1)
 qc2.h(0)
 qc2.z(0)
-print("H then Z:", Statevector.from_instruction(qc2))
+print("H then Z:", Statevector(qc2))
 ```
 
 Output:
@@ -87,7 +87,7 @@ The state \\(|-\\rangle = \\frac{|0\\rangle - |1\\rangle}{\\sqrt{2}}\\) is creat
 qc = QuantumCircuit(1)
 qc.h(0)
 qc.z(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Or equivalently by `X` then `H`:
@@ -96,7 +96,7 @@ Or equivalently by `X` then `H`:
 qc = QuantumCircuit(1)
 qc.x(0)
 qc.h(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Both give \\(|-\\rangle\\). Verify this!
@@ -114,23 +114,23 @@ from math import pi
 # |+⟩ - phase 0
 qc = QuantumCircuit(1)
 qc.h(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # |−⟩ - phase π (180°)
 qc = QuantumCircuit(1)
 qc.x(0)
 qc.h(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # P(π/2) - phase π/2
 qc = QuantumCircuit(1)
 qc.p(pi/2, 0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # P(π/4) - phase π/4
 qc = QuantumCircuit(1)
 qc.p(pi/4, 0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 ```
 
 ```
@@ -162,7 +162,7 @@ qc = QuantumCircuit(2)
 qc.h(0)
 qc.h(1)
 
-print("Equal superposition:", Statevector.from_instruction(qc))
+print("Equal superposition:", Statevector(qc))
 
 # Now apply Z to qubit 0 only
 qc2 = QuantumCircuit(2)
@@ -170,7 +170,7 @@ qc2.h(0)
 qc2.h(1)
 qc2.z(0)
 
-print("With Z on q0:", Statevector.from_instruction(qc2))
+print("With Z on q0:", Statevector(qc2))
 ```
 
 The \\(|1\\rangle\\) component on qubit 0 gets the phase flip, creating entanglement between the phase and which qubit is in state 1.
@@ -188,12 +188,12 @@ qc = QuantumCircuit(2)
 qc.h(0)
 qc.h(1)
 
-print("Before CZ:", Statevector.from_instruction(qc))
+print("Before CZ:", Statevector(qc))
 
 # Apply CZ
 qc.cz(0, 1)
 
-print("After CZ:", Statevector.from_instruction(qc))
+print("After CZ:", Statevector(qc))
 ```
 
 Output shows a phase flip on the \\(|11\\rangle\\) component.
@@ -249,12 +249,12 @@ from math import pi
 # P(π) should equal Z
 qc = QuantumCircuit(1)
 qc.p(pi, 0)
-print("P(π):", Statevector.from_instruction(qc))
+print("P(π):", Statevector(qc))
 
 # P(π/2) adds 90° phase
 qc2 = QuantumCircuit(1)
 qc2.p(pi/2, 0)
-print("P(π/2):", Statevector.from_instruction(qc2))
+print("P(π/2):", Statevector(qc2))
 ```
 
 ## Checkpoint Exercises

@@ -41,7 +41,7 @@ from qiskit.quantum_info import Statevector
 qc = QuantumCircuit(2)
 qc.x(1)  # Flip qubit 1
 
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -83,7 +83,7 @@ qc.x(0)
 # q2 = 1 (leftmost qubit)
 qc.x(2)
 
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -149,7 +149,7 @@ qc = QuantumCircuit(2)
 qc.x(1)  # This actually gives |10⟩, not |01⟩!
 
 # RIGHT: Check with Statevector
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -224,7 +224,7 @@ Quick check:
 qc = QuantumCircuit(2)
 qc.x(1)
 
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print("State:", state)
 print("Non-zero indices:", [i for i, amp in enumerate(state) if abs(amp) > 0])
 ```

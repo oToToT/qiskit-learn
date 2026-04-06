@@ -15,7 +15,7 @@ from qiskit.quantum_info import Statevector
 qc = QuantumCircuit(3)
 qc.x(0)  # q0 = 1 (rightmost)
 qc.x(2)  # q2 = 1 (leftmost)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Remember: qubit 0 is the rightmost (least significant).
@@ -33,7 +33,7 @@ def uniform_superposition(n):
 
 # Test on 4 qubits
 qc = uniform_superposition(4)
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -59,7 +59,7 @@ def prepare_amplitudes(amplitudes):
 
 # Create (√(3)/2)|0⟩ + (1/2)|1⟩
 qc = prepare_amplitudes([sqrt(3)/2, 0.5])
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 ## Pattern 4: Two-Qubit Routing
@@ -74,7 +74,7 @@ qc = QuantumCircuit(2)
 qc.ry(pi/3, 0)  # cos(π/6)² = 3/4, sin(π/6)² = 1/4
 # Copy the branch to qubit 1
 qc.cx(0, 1)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 The RY sets probabilities, then CNOT routes them.
@@ -89,7 +89,7 @@ qc = QuantumCircuit(2)
 qc.h(0)  # Creates (|0⟩ + |1⟩)/√2 on qubit 0
 qc.x(1)  # Set qubit 1 to |1⟩
 # Result: (|01⟩ + |11⟩)/√2? No! Check with statevector
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Try this and verify. Then figure out how to get \\((|10\\rangle + |11\\rangle)/\\sqrt{2}\\).
@@ -104,7 +104,7 @@ qc = QuantumCircuit(2)
 qc.h(0)
 qc.cx(0, 1)
 qc.z(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Sign differences are invisible in immediate measurement but visible in interference.
@@ -122,7 +122,7 @@ def ghz_state(n):
     return qc
 
 qc = ghz_state(5)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Creates \\(\\frac{|0...0\\rangle + |1...1\\rangle}{\\sqrt{2}}\\).
@@ -160,7 +160,7 @@ from math import sqrt
 
 qc = QuantumCircuit(2)
 qc.initialize([sqrt(3)/2, 0, 0, 0.5])
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 This works but hides the circuit structure. **Manual construction teaches more.**

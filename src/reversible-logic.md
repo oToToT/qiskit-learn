@@ -35,7 +35,7 @@ qc = QuantumCircuit(3)
 qc.x([0, 1])  # |11⟩
 qc.x(2)        # ancilla = |1⟩
 qc.compose(oracle_11(), inplace=True)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 The ancilla flips from \\(|1\\rangle\\) to \\(|0\\rangle\\).

@@ -20,9 +20,9 @@ Design arithmetic circuits by thinking about basis states:
 
 | Operation | Mapping |
 |-----------|---------|
-| SWAP | \\(\|xy\\rangle \\rightarrow \|yx\\rangle\\) |
-| Increment | \\(\|x\\rangle \\rightarrow \|x+1 \\mod 2^n\\rangle\\) |
-| Add constant | \\(\|x\\rangle \\rightarrow \|x+k \\mod 2^n\\rangle\\) |
+| SWAP | \\(|xy\\rangle \\rightarrow |yx\\rangle\\) |
+| Increment | \\(|x\\rangle \\rightarrow |x+1 \\mod 2^n\\rangle\\) |
+| Add constant | \\(|x\\rangle \\rightarrow |x+k \\mod 2^n\\rangle\\) |
 
 ## SWAP: The Simplest Arithmetic Circuit
 
@@ -41,7 +41,7 @@ for bits in ['00', '01', '10', '11']:
         if b == '1':
             qc_test.x(i)
     qc_test.compose(qc, inplace=True)
-    print(f"{bits} → {Statevector.from_instruction(qc_test)}")
+    print(f"{bits} → {Statevector(qc_test)}")
 ```
 
 ## Increment
@@ -52,9 +52,9 @@ Adding 1 modulo \\(2^n\\):
 def increment(n):
     """Create a circuit that adds 1 modulo 2^n."""
     qc = QuantumCircuit(n)
-    for i in range(n):
-        qc.x(i)  # Flip all qubits
-    qc.x(0)  # Correct for the all-ones case
+    for i in range(n-1, 0, -1):
+        qc.mcx(list(range(i)), i)
+    qc.x(0)
     return qc
 
 # Test on 2 qubits
@@ -65,7 +65,7 @@ for bits in ['00', '01', '10', '11']:
         if b == '1':
             qc_test.x(i)
     qc_test.compose(inc, inplace=True)
-    print(f"{bits}+1 = {Statevector.from_instruction(qc_test)}")
+    print(f"{bits}+1 = {Statevector(qc_test)}")
 ```
 
 ## Addition in the Fourier Basis
@@ -95,10 +95,9 @@ Key property: all operations wrap around at \\(N\\).
 # Modular addition: (x + k) mod 4
 def add_mod_4(k):
     qc = QuantumCircuit(2)
-    for _ in range(k):
-        qc.x(0)
-        qc.x(1)
-        qc.x(0)  # Correct for overflow
+    inc = increment(2)
+    for _ in range(k % 4):
+        qc.compose(inc, inplace=True)
     return qc
 ```
 
@@ -126,7 +125,7 @@ def test_circuit(circuit, n_qubits, expected_mapping):
             if (i >> j) & 1:
                 qc.x(j)
         qc.compose(circuit, inplace=True)
-        state = Statevector.from_instruction(qc)
+        state = Statevector(qc)
         # Check result
 ```
 

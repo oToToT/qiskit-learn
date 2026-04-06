@@ -67,7 +67,7 @@ qc.x(0)  # |−⟩
 qc.h(0)
 qc.z(0)
 qc.h(0)
-print("Flip |−⟩:", Statevector.from_instruction(qc))
+print("Flip |−⟩:", Statevector(qc))
 ```
 
 ## The Diffusion Operator
@@ -133,7 +133,7 @@ def amplitude_amplification_1iter(n, target):
 
 # Test on 2 qubits, target |11⟩
 qc = amplitude_amplification_1iter(2, '11')
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print("After 1 iteration:", state)
 print("P(|11⟩):", state.probabilities()[3])
 ```

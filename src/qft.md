@@ -29,7 +29,7 @@ def qft_2():
 
 qc = qft_2()
 print(qc)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 ## The Pattern
@@ -48,7 +48,9 @@ def qft(n):
         qc.h(i)
         for j in range(i):
             qc.cp(pi/(2**(i-j)), j, i)
-    qc.swap(*range(n//2))  # Swap pairs
+    # Swap qubits to match little-endian convention
+    for i in range(n // 2):
+        qc.swap(i, n - i - 1)
     return qc
 ```
 
@@ -78,7 +80,7 @@ qc.h(0)
 qc.h(1)
 qc.cp(pi/2, 0, 1)
 
-print("Without swap:", Statevector.from_instruction(qc))
+print("Without swap:", Statevector(qc))
 ```
 
 ## Inverse QFT
@@ -93,7 +95,7 @@ qc.x(0)  # Start with |01⟩
 qc.compose(qft_2(), inplace=True)
 qc.compose(qft_2().inverse(), inplace=True)
 
-print("After QFT† QFT:", Statevector.from_instruction(qc))
+print("After QFT† QFT:", Statevector(qc))
 ```
 
 If implemented correctly, you get back to the original state.

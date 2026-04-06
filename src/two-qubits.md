@@ -30,25 +30,25 @@ from qiskit.quantum_info import Statevector
 # Case 1: Control = 0, Target = 0 → No change
 qc1 = QuantumCircuit(2)
 qc1.cx(0, 1)  # CNOT with control=0, target=1
-print("|00⟩ after CNOT:", Statevector.from_instruction(qc1))
+print("|00⟩ after CNOT:", Statevector(qc1))
 
 # Case 2: Control = 1, Target = 0 → Flip target
 qc2 = QuantumCircuit(2)
 qc2.x(0)  # Set control to 1
 qc2.cx(0, 1)
-print("|10⟩ after CNOT:", Statevector.from_instruction(qc2))
+print("|10⟩ after CNOT:", Statevector(qc2))
 
 # Case 3: Control = 0, Target = 1 → No change
 qc3 = QuantumCircuit(2)
 qc3.x(1)  # Set target to 1
 qc3.cx(0, 1)
-print("|01⟩ after CNOT:", Statevector.from_instruction(qc3))
+print("|01⟩ after CNOT:", Statevector(qc3))
 
 # Case 4: Control = 1, Target = 1 → Flip target
 qc4 = QuantumCircuit(2)
 qc4.x([0, 1])  # Both are 1
 qc4.cx(0, 1)
-print("|11⟩ after CNOT:", Statevector.from_instruction(qc4))
+print("|11⟩ after CNOT:", Statevector(qc4))
 ```
 
 Summary:
@@ -84,7 +84,7 @@ qc = QuantumCircuit(2)
 qc.h(0)  # Put control in superposition
 qc.cx(0, 1)
 
-print("State:", Statevector.from_instruction(qc))
+print("State:", Statevector(qc))
 ```
 
 Output:
@@ -136,7 +136,7 @@ qc.h(0)
 qc.cx(0, 1)
 qc.cx(0, 1)
 
-print("CNOT twice:", Statevector.from_instruction(qc))
+print("CNOT twice:", Statevector(qc))
 ```
 
 ## Circuit Diagrams
@@ -169,7 +169,7 @@ qc = QuantumCircuit(3)
 qc.h(0)
 qc.cx(0, 1)
 qc.cx(1, 2)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 This creates \\(\\frac{|000\\rangle + |111\\rangle}{\\sqrt{2}}\\).
@@ -182,7 +182,7 @@ qc = QuantumCircuit(3)
 qc.h(0)
 qc.cx(0, 1)
 qc.cx(0, 2)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 This creates \\(\\frac{|000\\rangle + |110\\rangle}{\\sqrt{2}}\\)? No wait—verify this yourself!

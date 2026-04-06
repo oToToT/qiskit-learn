@@ -47,7 +47,7 @@ from qiskit.visualization import plot_bloch_multivector
 
 # Visualize |0⟩
 qc = QuantumCircuit(1)
-sv = Statevector.from_instruction(qc)
+sv = Statevector(qc)
 display(plot_bloch_multivector(sv))
 ```
 
@@ -79,20 +79,20 @@ from qiskit.visualization import plot_bloch_multivector
 # |1⟩ - south pole
 qc = QuantumCircuit(1)
 qc.x(0)
-sv = Statevector.from_instruction(qc)
+sv = Statevector(qc)
 display(plot_bloch_multivector(sv))
 
 # |+⟩ - on the equator
 qc = QuantumCircuit(1)
 qc.h(0)
-sv = Statevector.from_instruction(qc)
+sv = Statevector(qc)
 display(plot_bloch_multivector(sv))
 
 # |−⟩ - opposite on the equator
 qc = QuantumCircuit(1)
 qc.x(0)
 qc.h(0)
-sv = Statevector.from_instruction(qc)
+sv = Statevector(qc)
 display(plot_bloch_multivector(sv))
 ```
 

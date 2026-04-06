@@ -24,7 +24,7 @@ qc = QuantumCircuit(2)
 qc.x([0, 1])  # Prepare |11⟩
 qc.cz(0, 1)
 
-print("CZ|11⟩:", Statevector.from_instruction(qc))
+print("CZ|11⟩:", Statevector(qc))
 ```
 
 Output: \\(-|11\\rangle\\)
@@ -40,7 +40,7 @@ qc.h(0)
 qc.h(1)
 qc.cz(0, 1)
 
-print("CZ on superposition:", Statevector.from_instruction(qc))
+print("CZ on superposition:", Statevector(qc))
 ```
 
 The \\(|11\\rangle\\) component picks up a minus sign.
@@ -73,7 +73,7 @@ from qiskit.quantum_info import Statevector
 qc = QuantumCircuit(2)
 qc.x(1)  # |01⟩
 qc.swap(0, 1)
-print("SWAP|01⟩:", Statevector.from_instruction(qc))
+print("SWAP|01⟩:", Statevector(qc))
 ```
 
 ## Implementing SWAP with CNOTs

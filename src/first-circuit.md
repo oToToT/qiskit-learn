@@ -22,7 +22,7 @@ print(qc)
 
 # Get and print the quantum state
 print("\nQuantum State:")
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -96,7 +96,7 @@ A circuit is like a recipe. Apply the steps, and you get a state. Measure the st
 qc = QuantumCircuit(1)
 qc.x(0)  # Apply the X (NOT) gate
 
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -116,7 +116,7 @@ qc = QuantumCircuit(1)
 qc.x(0)    # First: |0> -> |1>
 qc.h(0)    # Then: |1> -> ?
 
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 

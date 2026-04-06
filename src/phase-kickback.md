@@ -28,7 +28,7 @@ qc.h(1)      # H|1⟩ = |−⟩
 # Apply CNOT with |−⟩ as target
 qc.cx(0, 1)
 
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 The \\(|1\\rangle\\) component on qubit 0 picks up a minus sign!
@@ -70,7 +70,7 @@ qc.h(0)      # Put control in superposition
 qc.x(1)      # Prepare |1⟩ (eigenstate of Z with eigenvalue -1)
 qc.cz(0, 1) # Controlled-Z
 
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 The \\(|1\\rangle\\) branch on qubit 0 picks up a minus sign.
@@ -101,7 +101,7 @@ qc.cz(0, 1)  # Mark |11⟩
 qc.h(0)
 qc.h(1)
 
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Try this and verify that \\(|11\\rangle\\) gets the minus sign.

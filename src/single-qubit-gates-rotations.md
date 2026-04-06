@@ -27,7 +27,7 @@ from math import pi
 # 180° rotation (should equal X)
 qc = QuantumCircuit(1)
 qc.rx(pi, 0)
-print("RX(π):", Statevector.from_instruction(qc))
+print("RX(π):", Statevector(qc))
 ```
 
 Output:
@@ -49,7 +49,7 @@ The amplitude on \\(|1\\rangle\\) is approximately \\(-i\\), which has the same 
 # RY(π/2) should give 50-50 superposition
 qc = QuantumCircuit(1)
 qc.ry(pi/2, 0)
-print("RY(π/2):", Statevector.from_instruction(qc))
+print("RY(π/2):", Statevector(qc))
 ```
 
 Output:
@@ -69,9 +69,9 @@ Notice the pattern: \\(R_y(\\theta)\\) uses \\(\\theta/2\\) in the formulas. Thi
 
 | Rotation Angle | Effect |
 |----------------|--------|
-| \\(R_y(\\pi)\\) | \\(\|0\\rangle \\rightarrow \|1\\rangle\\) (bit flip) |
-| \\(R_y(\\pi/2)\\) | \\(\|0\\rangle \\rightarrow \\frac{\|0\\rangle+\|1\\rangle}{\\sqrt{2}}\\) (superposition) |
-| \\(R_y(\\pi/4)\\) | Partial rotation toward \\(\|1\\rangle\\) |
+| \\(R_y(\\pi)\\) | \\(|0\\rangle \\rightarrow |1\\rangle\\) (bit flip) |
+| \\(R_y(\\pi/2)\\) | \\(|0\\rangle \\rightarrow \\frac{|0\\rangle+|1\\rangle}{\\sqrt{2}}\\) (superposition) |
+| \\(R_y(\\pi/4)\\) | Partial rotation toward \\(|1\\rangle\\) |
 
 ## Designing States with RY
 
@@ -90,7 +90,7 @@ theta = 2 * asin(sqrt(target_prob))
 
 qc = QuantumCircuit(1)
 qc.ry(theta, 0)
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print("State:", state)
 
 # Verify the probability
@@ -119,7 +119,7 @@ The probability is approximately 0.75, as desired.
 qc = QuantumCircuit(1)
 qc.x(0)  # Start with |1⟩
 qc.rz(pi/4, 0)  # Add π/4 phase
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Note: \\(R_z\\) doesn't change the probabilities—only the phase.
@@ -134,7 +134,7 @@ The `p(theta)` gate is equivalent to \\(R_z(\\theta)\\):
 qc = QuantumCircuit(1)
 qc.x(0)
 qc.p(pi/2, 0)  # Add π/2 phase to |1⟩
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 ## Rotations in Practice
@@ -164,7 +164,7 @@ qc.ry(theta, 0)
 phi = 0  # phase on |1⟩
 qc.rz(phi, 0)
 
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 ## Visualizing Rotation Gates
@@ -181,22 +181,22 @@ from math import pi
 for angle in [0, pi/4, pi/2, 3*pi/4, pi]:
     qc = QuantumCircuit(1)
     qc.ry(angle, 0)
-    display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+    display(plot_bloch_multivector(Statevector(qc)))
 
 # RZ rotates around the equator (controls phase only)
 # Note: RZ on |0⟩ has no visible effect on Bloch sphere
 qc = QuantumCircuit(1)
 qc.rz(pi/2, 0)
-print("RZ(π/2) on |0⟩:", Statevector.from_instruction(qc))
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+print("RZ(π/2) on |0⟩:", Statevector(qc))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # RZ on |+⟩ - shows phase change
 qc = QuantumCircuit(1)
 qc.h(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 qc.rz(pi/2, 0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 ```
 
 Key insight:

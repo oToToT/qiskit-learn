@@ -8,7 +8,7 @@ You need three things:
 
 | Tool | Purpose | Version |
 |------|---------|---------|
-| **Python** | Programming language | 3.11+ |
+| **Python** | Programming language | 3.13+ |
 | **uv** | Package manager and environment tool | Latest |
 | **mdbook** | Book build tool | Latest |
 | **Qiskit** | Quantum computing framework | Latest |
@@ -21,7 +21,7 @@ Check if you have Python installed:
 python --version
 ```
 
-If you see `Python 3.11` or higher, you're good. Otherwise, install Python from [python.org](https://www.python.org/downloads/) or use your system package manager.
+If you see `Python 3.13` or higher, you're good. Otherwise, install Python from [python.org](https://www.python.org/downloads/) or use your system package manager.
 
 ## Step 2: Install uv
 
@@ -137,7 +137,7 @@ print(qc)
 
 # Print the quantum state
 print("\nStatevector:")
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print(state)
 ```
 
@@ -209,10 +209,10 @@ Here's why:
 
 The workflow we'll use:
 
-1. Write circuit                         
-2. Inspect `Statevector.from_instruction()`
-3. Understand the state                  
-4. Then: measure and sample              
+1. Write circuit
+1. Inspect `Statevector()`
+1. Understand the state
+1. Then: measure and sample
 
 This order will save you hours of confusion.
 
@@ -252,7 +252,7 @@ from qiskit.primitives import StatevectorSampler
 
 def verify_state(qc: QuantumCircuit, expected_state: Statevector, verbose: bool = True) -> bool:
     """Verify that a circuit produces the expected state."""
-    actual = Statevector.from_instruction(qc)
+    actual = Statevector(qc)
     match = actual.equiv(expected_state)
     if verbose:
         print(f"Circuit:\n{qc}")
@@ -263,7 +263,7 @@ def verify_state(qc: QuantumCircuit, expected_state: Statevector, verbose: bool 
 
 def visualize_and_print(qc: QuantumCircuit):
     """Display Bloch sphere and print state for a circuit."""
-    state = Statevector.from_instruction(qc)
+    state = Statevector(qc)
     print(f"Circuit:\n{qc}\nState: {state}")
     display(plot_bloch_multivector(state))
 
@@ -309,7 +309,7 @@ Close and reopen your terminal after installing uv. If it still doesn't work, ch
 
 ### "Python version not supported"
 
-This book requires Python 3.11 or newer. Update Python and try again.
+This book requires Python 3.13 or newer. Update Python and try again.
 
 ### "qiskit import fails"
 
@@ -327,7 +327,7 @@ mdbook --version
 
 At the end of this setup, you should have:
 
-- [ ] Python 3.11+
+- [ ] Python 3.13+
 - [ ] uv installed and working
 - [ ] mdbook installed and working
 - [ ] Project dependencies installed (`uv sync`)

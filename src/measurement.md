@@ -110,8 +110,8 @@ qc2.h(0)        # |+⟩
 qc2.z(0)        # Apply Z: (|0⟩ - |1⟩) / √2 = |−⟩
 
 # Look at the states
-print("State 1 (|+⟩):", Statevector.from_instruction(qc1))
-print("State 2 (|−⟩):", Statevector.from_instruction(qc2))
+print("State 1 (|+⟩):", Statevector(qc1))
+print("State 2 (|−⟩):", Statevector(qc2))
 ```
 
 Output:
@@ -172,7 +172,7 @@ qc_good = QuantumCircuit(2)
 qc_good.h(0)
 qc_good.cx(0, 1)
 # No measurement yet—inspect the state first!
-state = Statevector.from_instruction(qc_good)
+state = Statevector(qc_good)
 print("Before measurement:", state)
 ```
 
@@ -183,7 +183,7 @@ The good circuit shows the full entangled state. The measured circuit shows only
 Here's the recommended workflow for any circuit:
 
 1. Write the circuit
-1. Inspect Statevector.from_instruction()
+1. Inspect Statevector()
    - Are the amplitudes correct?
    - Are the phases correct?
 1. Predict what measurement will show

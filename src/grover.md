@@ -41,7 +41,7 @@ from math import pi
 n = 2  # 2 qubits = 4 items
 qc = QuantumCircuit(n)
 qc.h(range(n))
-print("Uniform superposition:", Statevector.from_instruction(qc))
+print("Uniform superposition:", Statevector(qc))
 ```
 
 ### Step 2: Oracle (Mark the Target)
@@ -55,7 +55,7 @@ def oracle_11():
     return qc
 
 qc.compose(oracle_11(), inplace=True)
-print("After oracle:", Statevector.from_instruction(qc))
+print("After oracle:", Statevector(qc))
 ```
 
 ### Step 3: Diffusion (Amplify)
@@ -73,7 +73,7 @@ def diffusion():
     return qc
 
 qc.compose(diffusion(), inplace=True)
-print("After diffusion:", Statevector.from_instruction(qc))
+print("After diffusion:", Statevector(qc))
 ```
 
 ### Step 4: Measure
@@ -90,7 +90,7 @@ The target \\(|11\\rangle\\) should dominate.
 
 ## Understanding the Amplification
 
-| Stage | \\(\|11\\rangle\\) Amplitude |
+| Stage | \\(|11\\rangle\\) Amplitude |
 |-------|------------------------|
 | Start (uniform) | \\(1/\\sqrt{4} = 0.5\\) |
 | After oracle | \\(-0.5\\) (flipped sign) |
@@ -112,18 +112,18 @@ def grover_search(n, target, iterations=1):
     qc.h(range(n))
     
     for _ in range(iterations):
-        # Oracle
-        for i, bit in enumerate(target):
-            if bit == '1':
+        # Oracle: flip phase of |target⟩
+        for i, bit in enumerate(reversed(target)):
+            if bit == '0':
                 qc.x(i)
         qc.h(n-1)
         qc.mcx(list(range(n-1)), n-1)
         qc.h(n-1)
-        for i, bit in enumerate(target):
-            if bit == '1':
+        for i, bit in enumerate(reversed(target)):
+            if bit == '0':
                 qc.x(i)
         
-        # Diffusion
+        # Diffusion: flip phase of all except |0...0⟩, then reflect
         qc.h(range(n))
         qc.x(range(n))
         qc.h(n-1)
@@ -140,6 +140,7 @@ def grover_search(n, target, iterations=1):
 
 ```python
 # Search for |01⟩ on 2 qubits
+# Note: target string is 'q1 q0'
 qc = grover_search(2, '01', iterations=1)
 result = sampler.run([qc], shots=256).result()
 print("Searching for |01⟩:", result[0].data.meas.get_counts())
@@ -156,18 +157,18 @@ def grover_amplitudes(n, target):
     
     qc = QuantumCircuit(n)
     qc.h(range(n))
-    amplitudes.append(Statevector.from_instruction(qc))
+    amplitudes.append(Statevector(qc))
     
     for _ in range(3):  # 3 iterations
         # Oracle
-        for i, bit in enumerate(target):
-            if bit == '1':
+        for i, bit in enumerate(reversed(target)):
+            if bit == '0':
                 qc.x(i)
         qc.h(n-1)
         qc.mcx(list(range(n-1)), n-1)
         qc.h(n-1)
-        for i, bit in enumerate(target):
-            if bit == '1':
+        for i, bit in enumerate(reversed(target)):
+            if bit == '0':
                 qc.x(i)
         
         # Diffusion
@@ -179,7 +180,7 @@ def grover_amplitudes(n, target):
         qc.x(range(n))
         qc.h(range(n))
         
-        amplitudes.append(Statevector.from_instruction(qc))
+        amplitudes.append(Statevector(qc))
     
     return amplitudes
 

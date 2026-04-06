@@ -16,13 +16,13 @@ from qiskit.quantum_info import Statevector
 # H on |0⟩
 qc = QuantumCircuit(1)
 qc.h(0)
-print("H|0⟩:", Statevector.from_instruction(qc))
+print("H|0⟩:", Statevector(qc))
 
 # H on |1⟩
 qc2 = QuantumCircuit(1)
 qc2.x(0)  # Prepare |1⟩
 qc2.h(0)  # Apply H
-print("H|1⟩:", Statevector.from_instruction(qc2))
+print("H|1⟩:", Statevector(qc2))
 ```
 
 Output:
@@ -38,8 +38,8 @@ These are the **plus and minus states**—eigenstates in a different basis:
 
 | State | Name | Definition |
 |-------|------|------------|
-| \\(\|+\\rangle\\) | Plus state | \\(\\frac{\|0\\rangle+\|1\\rangle}{\\sqrt{2}}\\) |
-| \\(\|-\\rangle\\) | Minus state | \\(\\frac{\|0\\rangle-\|1\\rangle}{\\sqrt{2}}\\) |
+| \\(|+\\rangle\\) | Plus state | \\(\\frac{|0\\rangle+|1\\rangle}{\\sqrt{2}}\\) |
+| \\(|-\\rangle\\) | Minus state | \\(\\frac{|0\\rangle-|1\\rangle}{\\sqrt{2}}\\) |
 
 The \\(|+\\rangle\\) and \\(|-\\rangle\\) states are:
 
@@ -69,7 +69,7 @@ from qiskit.quantum_info import Statevector
 qc = QuantumCircuit(2)
 qc.h(0)
 qc.h(1)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Output:
@@ -158,24 +158,24 @@ from qiskit.visualization import plot_bloch_multivector
 
 # |0⟩ before H - at north pole
 qc = QuantumCircuit(1)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # After H - |+⟩ on the equator!
 qc = QuantumCircuit(1)
 qc.h(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # H on |1⟩ gives |−⟩ - opposite on equator
 qc = QuantumCircuit(1)
 qc.x(0)
 qc.h(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 
 # Equal superposition on 2 qubits - shows both on Bloch spheres
 qc = QuantumCircuit(2)
 qc.h(0)
 qc.h(1)
-display(plot_bloch_multivector(Statevector.from_instruction(qc)))
+display(plot_bloch_multivector(Statevector(qc)))
 ```
 
 ## Applying H Twice

@@ -43,7 +43,7 @@ If you skip this layer, Qiskit becomes memorization instead of understanding.
 This is the code pattern you'll use repeatedly:
 
 - `QuantumCircuit` to define circuits
-- `Statevector.from_instruction` to inspect exact states
+- `Statevector` to inspect exact states
 - `StatevectorSampler` to sample measurement outcomes
 - `compose`, `inverse`, `control` to assemble larger circuits
 
@@ -84,12 +84,12 @@ That last step matters. If you only read, the material will feel clearer than it
 
 Here is the workflow that will save you hours of frustration:
 
-1. Write the circuit                        
-2. Inspect `Statevector.from_instruction()`
-3. Predict what you expect                  
-4. Compare actual vs expected               
-5. If wrong: debug using the checklist below
-6. Only then: measure and sample            
+1. Write the circuit
+1. Inspect `Statevector()`
+1. Predict what you expect
+1. Compare actual vs expected
+1. If wrong: debug using the checklist below
+1. Only then: measure and sample
 
 This order matters because:
 
@@ -151,7 +151,7 @@ Getting stuck is part of the process. Here's what to do:
 
 ### On circuit behavior:
 
-- Add `print(Statevector.from_instruction(qc))` to see what's happening
+- Add `print(Statevector(qc))` to see what's happening
 - Test on the simplest possible input
 - Check the debugging checklist
 

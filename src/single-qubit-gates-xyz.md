@@ -31,7 +31,7 @@ from qiskit.quantum_info import Statevector
 # X gate on |0⟩ gives |1⟩
 qc = QuantumCircuit(1)
 qc.x(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Output:
@@ -54,13 +54,13 @@ The Z gate flips the sign of the \\(|1\\rangle\\) component:
 # Z gate leaves |0⟩ unchanged
 qc1 = QuantumCircuit(1)
 qc1.z(0)
-print("Z on |0⟩:", Statevector.from_instruction(qc1))
+print("Z on |0⟩:", Statevector(qc1))
 
 # Z gate flips sign of |1⟩
 qc2 = QuantumCircuit(1)
 qc2.x(0)  # Prepare |1⟩
 qc2.z(0)  # Apply Z
-print("Z on |1⟩:", Statevector.from_instruction(qc2))
+print("Z on |1⟩:", Statevector(qc2))
 ```
 
 Output:
@@ -83,7 +83,7 @@ The Y gate does both: flips the state and adds a phase:
 # Y on |0⟩
 qc = QuantumCircuit(1)
 qc.y(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 Output:
@@ -119,23 +119,23 @@ from qiskit.visualization import plot_bloch_multivector
 # X gate: rotates from |0⟩ to |1⟩ around x-axis
 qc_x = QuantumCircuit(1)
 qc_x.x(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc_x)))
+display(plot_bloch_multivector(Statevector(qc_x)))
 
 # Z gate: leaves |0⟩ unchanged
 qc_z = QuantumCircuit(1)
 qc_z.z(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc_z)))
+display(plot_bloch_multivector(Statevector(qc_z)))
 
 # Z on |+⟩: rotates to |−⟩ (phase flip visible on equator)
 qc_z_on_plus = QuantumCircuit(1)
 qc_z_on_plus.h(0)
 qc_z_on_plus.z(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc_z_on_plus)))
+display(plot_bloch_multivector(Statevector(qc_z_on_plus)))
 
 # Y gate: interesting because it has imaginary amplitudes
 qc_y = QuantumCircuit(1)
 qc_y.y(0)
-display(plot_bloch_multivector(Statevector.from_instruction(qc_y)))
+display(plot_bloch_multivector(Statevector(qc_y)))
 ```
 
 | Gate | Rotation Axis | Angle |
@@ -167,13 +167,13 @@ You can apply multiple gates in sequence:
 qc = QuantumCircuit(1)
 qc.x(0)
 qc.x(0)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 
 # X then Z
 qc2 = QuantumCircuit(1)
 qc2.x(0)
 qc2.z(0)
-print(Statevector.from_instruction(qc2))
+print(Statevector(qc2))
 ```
 
 **Key insight:** Gate order matters!
@@ -185,7 +185,7 @@ print(Statevector.from_instruction(qc2))
 qc3 = QuantumCircuit(1)
 qc3.z(0)
 qc3.x(0)
-print(Statevector.from_instruction(qc3))
+print(Statevector(qc3))
 ```
 
 Do you notice the difference?

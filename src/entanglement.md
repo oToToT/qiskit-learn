@@ -49,23 +49,23 @@ def bell_state(variant='+'):
         
     elif variant in ['Ψ⁺', 'psi+', 2]:
         # |Ψ⁺⟩ = (|01⟩ + |10⟩) / √2
-        qc.x(0)
         qc.h(0)
         qc.cx(0, 1)
+        qc.x(0)
         
     elif variant in ['Ψ⁻', 'psi-', 3]:
         # |Ψ⁻⟩ = (|01⟩ - |10⟩) / √2
-        qc.x(0)
         qc.h(0)
         qc.cx(0, 1)
         qc.z(0)
+        qc.x(0)
     
     return qc
 
 # Create and display each Bell state
 for variant in ['Φ⁺', 'Φ⁻', 'Ψ⁺', 'Ψ⁻']:
     qc = bell_state(variant)
-    state = Statevector.from_instruction(qc)
+    state = Statevector(qc)
     print(f"{variant}: {state}")
 ```
 
@@ -82,17 +82,14 @@ from qiskit.visualization import plot_bloch_multivector
 qc = QuantumCircuit(2)
 qc.h(0)
 qc.cx(0, 1)
-state = Statevector.from_instruction(qc)
+state = Statevector(qc)
 print("|Φ⁺⟩ state:")
 print(state)
 display(plot_bloch_multivector(state))
 
 # |Ψ⁺⟩ = (|01⟩ + |10⟩)/√2 - anticorrelated
-qc = QuantumCircuit(2)
-qc.x(0)
-qc.h(0)
-qc.cx(0, 1)
-state = Statevector.from_instruction(qc)
+qc = bell_state('Ψ⁺')
+state = Statevector(qc)
 print("|Ψ⁺⟩ state:")
 print(state)
 display(plot_bloch_multivector(state))
@@ -183,14 +180,14 @@ How do you know if a state is entangled? One test: try to write it as a product 
 from qiskit.quantum_info import Statevector
 
 # This IS separable: (|0⟩ + |1⟩)/√2 ⊗ (|0⟩ + |1⟩)/√2
-state1 = Statevector.from_instruction(QuantumCircuit(2))
+state1 = Statevector(QuantumCircuit(2))
 print("Separable:", state1)
 
 # This is NOT separable: |Φ⁺⟩
 qc = QuantumCircuit(2)
 qc.h(0)
 qc.cx(0, 1)
-state2 = Statevector.from_instruction(qc)
+state2 = Statevector(qc)
 print("Entangled:", state2)
 ```
 
@@ -207,7 +204,7 @@ qc = QuantumCircuit(3)
 qc.h(0)
 qc.cx(0, 1)
 qc.cx(1, 2)
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 ### W State (3 qubits)

@@ -70,12 +70,14 @@ That standard keeps you honest.
 For quick reference while working through the chapters:
 
 ### Core Qiskit
+
 - [QuantumCircuit API](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit)
 - [Statevector](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Statevector)
 - [StatevectorSampler](https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.StatevectorSampler)
 - [Operator](https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Operator)
 
 ### Gates
+
 - [Single-qubit gates](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.UGate)
 - [Pauli gates (X, Y, Z)](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PauliGate)
 - [Hadamard gate](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.HGate)
@@ -86,6 +88,7 @@ For quick reference while working through the chapters:
 - [Phase gate (P)](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.PhaseGate)
 
 ### IBM Learning Courses
+
 - [Basics of Quantum Information](https://learning.quantum.ibm.com/course/basics-of-quantum-information)
 - [Fundamentals of Quantum Algorithms](https://learning.quantum.ibm.com/course/fundamentals-of-quantum-algorithms)
 - [Introduction to Quantum Superposition](https://learning.quantum.ibm.com/tutorial/introduction-to-quantum-superposition)
@@ -94,6 +97,7 @@ For quick reference while working through the chapters:
 - [Phase kickback](https://learning.quantum.ibm.com/tutorial/phase-kickback-and-phase-rotations)
 
 ### Qiskit Machine Learning
+
 - [Qiskit Machine Learning](https://qiskit.github.io/qiskit-machine-learning/)
 - [BellState circuit](https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.BellGate)
 

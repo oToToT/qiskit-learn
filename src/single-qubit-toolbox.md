@@ -8,9 +8,9 @@ Every single-qubit state can be expressed in any of these bases:
 
 | Basis | States | Created By |
 |-------|--------|------------|
-| Computational (Z) | \\(\|0\\rangle\\), \\(\|1\\rangle\\) | \\(I\\), \\(X\\) |
-| Plus/Minus (X) | \\(\|+\\rangle\\), \\(\|-\\rangle\\) | \\(H\\), \\(HX\\) |
-| Circular (Y) | \\(\|+i\\rangle\\), \\(\|-i\\rangle\\) | \\(HS^\\dagger\\), etc. |
+| Computational (Z) | \\(|0\\rangle\\), \\(|1\\rangle\\) | \\(I\\), \\(X\\) |
+| Plus/Minus (X) | \\(|+\\rangle\\), \\(|-\\rangle\\) | \\(H\\), \\(HX\\) |
+| Circular (Y) | \\(|+i\\rangle\\), \\(|-i\\rangle\\) | \\(HS^\\dagger\\), etc. |
 
 Understanding how to switch between bases is crucial for quantum algorithms.
 
@@ -28,11 +28,11 @@ from qiskit.quantum_info import Statevector
 
 # |0⟩ in Z basis
 qc = QuantumCircuit(1)
-print("|0⟩:", Statevector.from_instruction(qc))
+print("|0⟩:", Statevector(qc))
 
 # |1⟩ in Z basis
 qc.x(0)
-print("|1⟩:", Statevector.from_instruction(qc))
+print("|1⟩:", Statevector(qc))
 ```
 
 ## The Plus/Minus Basis (X Basis)
@@ -47,12 +47,12 @@ Eigenstates of the X operator:
 # |+⟩ in X basis
 qc = QuantumCircuit(1)
 qc.h(0)
-print("|+⟩:", Statevector.from_instruction(qc))
+print("|+⟩:", Statevector(qc))
 
 # |−⟩ in X basis
 qc.x(0)
 qc.h(0)
-print("|−⟩:", Statevector.from_instruction(qc))
+print("|−⟩:", Statevector(qc))
 ```
 
 ## The Key Identity: HZH = X
@@ -116,7 +116,7 @@ qc.h(0)  # |+⟩ → |0⟩
 qc.x(0)  # |0⟩ → |1⟩
 qc.h(0)  # |1⟩ → |−⟩
 
-print(Statevector.from_instruction(qc))
+print(Statevector(qc))
 ```
 
 This is equivalent to applying Z in the original basis!
